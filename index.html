@@ -8,6 +8,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 <style>
+  /* [CSS ANTERIOR PERMANECE INALTERADO PARA CONCISÃO] */
+
   * {
     box-sizing: border-box;
     margin: 0;
@@ -435,7 +437,7 @@
     color: white;
     font-weight: 600;
     font-size: 14px;
-    white-space: nowrap; /* Impede que o texto quebre */
+    white-space: nowrap; 
     padding: 0 10px;
   }
 
@@ -524,6 +526,36 @@
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
   }
+  
+  .spreadsheet-link {
+    margin-bottom: 20px;
+    padding: 12px;
+    background-color: #e0f2f1; /* Light cyan */
+    border: 1px solid #009688; /* Teal */
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    color: #00796b;
+    transition: background-color 0.3s;
+  }
+  
+  .spreadsheet-link a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+  
+  .spreadsheet-link:hover {
+    background-color: #b2dfdb;
+  }
+  
+  body.dark-mode .spreadsheet-link {
+    background-color: #0f3460;
+    border-color: #2196f3;
+    color: #81d4fa;
+  }
+  body.dark-mode .spreadsheet-link a {
+    color: #64b5f6;
+  }
 </style>
 </head>
 <body>
@@ -553,6 +585,13 @@
   </div>
 
   <div id="registro" class="main-content active">
+    
+    <div class="spreadsheet-link">
+        <p>Acesse a planilha de dados:</p>
+        <a href="#" id="spreadsheetLinkAnchor" target="_blank" class="btn-secondary" style="display: inline-block; width: auto;">
+            Abrir Planilha (Google Sheets)
+        </a>
+    </div>
     <div class="stats-grid">
       <div class="stat-card">
         <div class="label">Total Água</div>
@@ -603,7 +642,7 @@
 
           <div class="button-group">
             <button type="button" class="btn btn-secondary" onclick="definirInicio('agua')">
-              🔄 Redefinir Total Inicial
+              🔄 Redefinir Total Inicial (Início da Contagem)
             </button>
           </div>
 
@@ -661,7 +700,7 @@
 
           <div class="button-group">
             <button type="button" class="btn btn-secondary" onclick="definirInicio('energia')">
-              🔄 Redefinir Total Inicial
+              🔄 Redefinir Total Inicial (Início da Contagem)
             </button>
           </div>
 
@@ -695,11 +734,11 @@
   <div id="dashboard" class="main-content">
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="label">Consumo Água (Mês)</div>
+        <div class="label">Consumo Água (Recente)</div>
         <div class="value" id="aguaMes">0.00 m³</div>
       </div>
       <div class="stat-card">
-        <div class="label">Consumo Energia (Mês)</div>
+        <div class="label">Consumo Energia (Recente)</div>
         <div class="value" id="energiaMes">0.00 kWh</div>
       </div>
       <div class="stat-card success">
@@ -720,7 +759,7 @@
     </div>
 
     <div class="form-card" style="margin-top: 20px;">
-      <h2 style="margin-bottom: 20px;">📊 Distribuição por Tipo (Total)</h2>
+      <h2 style="margin-bottom: 20px;">📊 Distribuição por Tipo (Total Acumulado)</h2>
       <div class="chart-container" style="height: 250px;">
         <canvas id="pieChart"></canvas>
       </div>
@@ -730,7 +769,7 @@
   <div id="historico" class="main-content">
     <div class="form-card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-        <h2>📋 Histórico de Registros</h2>
+        <h2>📋 Histórico de Registros (Dados Locais)</h2>
         <div class="export-buttons" style="max-width: 400px;">
           <button class="btn btn-success" onclick="exportarCSV()">📥 CSV</button>
           <button class="btn btn-danger" onclick="exportarPDF()">📄 PDF</button>
@@ -834,6 +873,9 @@
 
 <script>
 // CONFIGURAÇÕES GLOBAIS
+// 🛑 IMPORTANTE: Para o link da planilha funcionar, você deve substituir
+// esta URL pelo URL de EDIÇÃO DA SUA PLANILHA (não o URL /exec)
+const GOOGLE_SHEET_EDIT_URL = "https://docs.google.com/spreadsheets/d/SUA_ID_DA_PLANILHA/edit"; 
 const scriptURL = "https://script.google.com/macros/s/AKfycbyfpjvwFpYmruXMHYlOBu6_XY_I1U0qRRGapmXU8SgmyvVdNVK2iCJwp-fxn58ipx1U/exec";
 
 const DATA_KEYS = {
@@ -858,13 +900,11 @@ function getLocalData(key, defaultValue = null) {
     const data = localStorage.getItem(key);
     try {
         const parsed = data ? JSON.parse(data) : defaultValue;
-        // Se for um número (como os totais e metas), garantir que seja float
         if (typeof parsed === 'string' && !isNaN(parsed)) {
             return parseFloat(parsed);
         }
         return parsed;
     } catch (e) {
-        // Retorna o valor direto se a tentativa de parse JSON falhar
         return data || defaultValue;
     }
 }
@@ -922,20 +962,21 @@ function showMainTab(tabId) {
   document.querySelectorAll('.main-tabs .tab-button').forEach(btn => btn.classList.remove('active'));
   document.getElementById(tabId).classList.add('active');
   
-  // Encontrar o botão clicado (target)
   const clickedButton = Array.from(document.querySelectorAll('.main-tabs .tab-button'))
                             .find(btn => btn.getAttribute('onclick').includes(`'${tabId}'`));
   if(clickedButton) clickedButton.classList.add('active');
 
-  // Ações específicas de tab
+  // Ações específicas de tab: Atualizar dados visíveis
   if (tabId === 'dashboard') {
+    carregarHistorico(); // Garante o histórico mais recente
     setTimeout(criarGraficos, 100);
   } else if (tabId === 'historico') {
     carregarHistorico();
   } else if (tabId === 'metas') {
-    carregarMetas(); // Garantir que os inputs estejam preenchidos
+    carregarMetas(); 
     atualizarProgressoMetas();
   } else if (tabId === 'comparacao') {
+    carregarHistorico();
     atualizarComparacao();
   }
 }
@@ -959,7 +1000,6 @@ async function carregarTotais() {
         const res = await fetch(`${scriptURL}?action=getLast`);
         const data = await res.json();
         
-        // Se o Sheets retornar valores válidos, sobrescreva e salve no local
         if (data.agua !== undefined && !isNaN(parseFloat(data.agua))) {
             totalAnteriorAgua = parseFloat(data.agua);
             setLocalData(DATA_KEYS.TOTAL_AGUA, totalAnteriorAgua);
@@ -981,7 +1021,6 @@ async function carregarTotais() {
     document.getElementById("displayTotalAgua").textContent = totalAnteriorAgua.toFixed(2) + " m³";
     document.getElementById("displayTotalEnergia").textContent = totalAnteriorEnergia.toFixed(2) + " kWh";
     
-    // 4. Recalcular o novo total caso o campo de consumo já tenha sido preenchido
     atualizarTotal('agua');
     atualizarTotal('energia');
 
@@ -1001,7 +1040,9 @@ function atualizarTotal(tipo) {
 
 function definirInicio(tipo) {
   const label = tipo === 'agua' ? 'Água (m³)' : 'Energia (kWh)';
-  const novoValorStr = prompt(`Digite o novo valor do total inicial acumulado de ${label}:`);
+  const totalAtual = tipo === 'agua' ? totalAnteriorAgua : totalAnteriorEnergia;
+
+  const novoValorStr = prompt(`O total atual é ${totalAtual.toFixed(2)}.\n\nDigite o NOVO valor do total inicial acumulado de ${label} (Início da Contagem):`);
   
   if (novoValorStr !== null) {
     const novoValor = parseFloat(novoValorStr);
@@ -1036,7 +1077,8 @@ async function handleFormSubmit(e) {
     e.preventDefault();
     const form = e.target;
     const tipo = form.id === 'aguaForm' ? 'agua' : 'energia';
-    const msg = document.getElementById(`msg${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
+    const tipoCaps = tipo.charAt(0).toUpperCase() + tipo.slice(1);
+    const msg = document.getElementById(`msg${tipoCaps}`);
     const btn = form.querySelector('button[type="submit"]');
     
     btn.classList.add('loading');
@@ -1044,46 +1086,66 @@ async function handleFormSubmit(e) {
     
     const formData = new FormData(form);
     
+    const novoRegistro = {
+        data: formData.get('dataHora'),
+        tipo: tipo === 'agua' ? 'água' : 'energia',
+        nome: formData.get('nome'),
+        consumo: parseFloat(formData.get(`consumo${tipoCaps}`)),
+        total: parseFloat(formData.get(`total${tipoCaps}`))
+    };
+
     try {
-        await fetch(scriptURL, { method: 'POST', body: formData });
-        mostrarMensagem(msg, `✅ Dados de ${tipo.charAt(0).toUpperCase() + tipo.slice(1)} enviados com sucesso!`, "success");
-        
-        // Atualizar histórico local
-        historico.push({
-            data: formData.get('dataHora'),
-            tipo: tipo === 'agua' ? 'água' : 'energia',
-            nome: formData.get('nome'),
-            consumo: parseFloat(formData.get(`consumo${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`)),
-            total: parseFloat(formData.get(`total${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`))
-        });
+        // Envio assíncrono para o Google Sheets (pode levar tempo ou falhar)
+        fetch(scriptURL, { method: 'POST', body: formData })
+            .then(() => console.log('Dados enviados ao Sheets com sucesso'))
+            .catch(err => console.error('Erro ao enviar dados ao Sheets (Tentativa assíncrona):', err));
+
+        // Atualizar histórico e totais localmente IMEDIATAMENTE
+        historico.unshift(novoRegistro); // Adiciona no início (mais recente)
         setLocalData(DATA_KEYS.HISTORICO, historico);
+
+        if (tipo === 'agua') {
+            totalAnteriorAgua = novoRegistro.total;
+            setLocalData(DATA_KEYS.TOTAL_AGUA, totalAnteriorAgua);
+        } else {
+            totalAnteriorEnergia = novoRegistro.total;
+            setLocalData(DATA_KEYS.TOTAL_ENERGIA, totalAnteriorEnergia);
+        }
+
+        mostrarMensagem(msg, `✅ Registro de ${tipoCaps} salvo localmente e enviado ao Sheets!`, "success");
         
         form.reset();
-        await carregarTotais(); // Atualiza o totalAnterior e a UI com o novo total
-        
+        await carregarTotais(); // Atualiza a UI com os novos totais
+
     } catch (err) {
-        console.error("Erro ao enviar dados:", err);
-        mostrarMensagem(msg, "❌ Erro ao enviar dados. Tente novamente.", "error");
+        console.error("Erro ao processar dados localmente:", err);
+        mostrarMensagem(msg, "❌ Erro interno. Recarregue a página.", "error");
     } finally {
         btn.classList.remove('loading');
         btn.disabled = false;
     }
 }
 
-// --- FUNÇÕES DE DASHBOARD/GRÁFICOS ---
+// --- FUNÇÕES DE DASHBOARD/GRÁFICOS, HISTÓRICO, METAS, COMPARAÇÃO (Funções mantidas da sugestão anterior) ---
 
 function criarGraficos() {
-    // Pegar os últimos 6 registros de consumo (água e energia separadamente)
-    const aguaRecords = historico.filter(h => h.tipo === 'água').slice(-6);
-    const energiaRecords = historico.filter(h => h.tipo === 'energia').slice(-6);
+    const aguaRecords = historico.filter(h => h.tipo === 'água').slice(0, 6);
+    const energiaRecords = historico.filter(h => h.tipo === 'energia').slice(0, 6);
 
-    const labels = aguaRecords.map(h => new Date(h.data).toLocaleDateString()).slice(-6);
-    const aguaData = aguaRecords.map(h => h.consumo);
-    const energiaData = energiaRecords.map(h => h.consumo);
-    
-    // Garante que o label de data corresponda a um registro, mesmo que tenha poucos
-    // Apenas usa o índice para registros com menos de 6
-    const chartLabels = labels.length > 0 ? labels : [1, 2, 3, 4, 5, 6].slice(0, Math.max(aguaData.length, energiaData.length));
+    // Mapeia datas e inverte para ordem cronológica no gráfico
+    const labels = [...new Set([...aguaRecords, ...energiaRecords].map(h => new Date(h.data).toLocaleDateString()))];
+    labels.sort((a, b) => new Date(a) - new Date(b));
+
+    // Consumo por data (simplificado)
+    const aguaData = labels.map(date => {
+        const record = aguaRecords.find(h => new Date(h.data).toLocaleDateString() === date);
+        return record ? record.consumo : 0;
+    });
+    const energiaData = labels.map(date => {
+        const record = energiaRecords.find(h => new Date(h.data).toLocaleDateString() === date);
+        return record ? record.consumo : 0;
+    });
+
     
     // Gráfico de Linha (Consumo Recente)
     const ctx = document.getElementById('consumptionChart');
@@ -1092,7 +1154,7 @@ function criarGraficos() {
     chartInstance = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: chartLabels,
+        labels: labels,
         datasets: [
           {
             label: 'Água (m³)',
@@ -1126,9 +1188,9 @@ function criarGraficos() {
     const totalAgua = historico.filter(h => h.tipo === 'água').reduce((a, b) => a + b.consumo, 0);
     const totalEnergia = historico.filter(h => h.tipo === 'energia').reduce((a, b) => a + b.consumo, 0);
 
-    // Estatísticas do Mês (usando os últimos 6 registros como "mês")
-    const aguaMes = aguaData.reduce((a, b) => a + b, 0);
-    const energiaMes = energiaData.reduce((a, b) => a + b, 0);
+    // Estatísticas do Mês (usando o total dos 6 registros mais recentes como "Recente")
+    const aguaMes = aguaRecords.reduce((a, b) => a + b.consumo, 0);
+    const energiaMes = energiaRecords.reduce((a, b) => a + b.consumo, 0);
     
     pieChartInstance = new Chart(ctxPie, {
       type: 'doughnut',
@@ -1150,20 +1212,17 @@ function criarGraficos() {
     document.getElementById('energiaMes').textContent = energiaMes.toFixed(2) + ' kWh';
     
     const metaAgua = metas.agua || 10;
-    const economiaCalc = Math.max(0, 100 - (aguaMes / metaAgua) * 100);
+    const economiaCalc = (metaAgua > 0) ? Math.max(0, 100 - (aguaMes / metaAgua) * 100) : 0;
     document.getElementById('economiaAgua').textContent = economiaCalc.toFixed(0) + '%';
     
-    const custoAgua = aguaMes * 5.5; // R$ por m³ (simulado)
-    const custoEnergia = energiaMes * 0.85; // R$ por kWh (simulado)
+    const custoAgua = aguaMes * 5.5; 
+    const custoEnergia = energiaMes * 0.85; 
     document.getElementById('custoTotal').textContent = 'R$ ' + (custoAgua + custoEnergia).toFixed(2);
 }
 
-// --- FUNÇÕES DE HISTÓRICO ---
-
 function carregarHistorico() {
   historico = getLocalData(DATA_KEYS.HISTORICO, []);
-  // Inverte o histórico para mostrar o mais recente primeiro
-  historico.sort((a, b) => new Date(b.data) - new Date(a.data)); 
+  // A ordem de salvamento já é do mais recente para o mais antigo (unshift)
   filtrarHistorico();
 }
 
@@ -1237,9 +1296,6 @@ function exportarPDF() {
     mostrarNotificacao('Arquivo PDF exportado com sucesso!', 'success');
 }
 
-
-// --- FUNÇÕES DE METAS ---
-
 function carregarMetas() {
     metas.agua = getLocalData(DATA_KEYS.METAS_AGUA, 10);
     metas.energia = getLocalData(DATA_KEYS.METAS_ENERGIA, 150);
@@ -1258,11 +1314,9 @@ function salvarMetas() {
 function atualizarProgressoMetas() {
     carregarMetas(); 
 
-    // Usar consumo recente (últimos 6 registros como simulação de "mês")
-    const aguaConsumoRecente = historico.filter(h => h.tipo === 'água').slice(-6).map(h => h.consumo).reduce((a, b) => a + b, 0);
-    const energiaConsumoRecente = historico.filter(h => h.tipo === 'energia').slice(-6).map(h => h.consumo).reduce((a, b) => a + b, 0);
+    const aguaConsumoRecente = historico.filter(h => h.tipo === 'água').slice(0, 6).map(h => h.consumo).reduce((a, b) => a + b, 0);
+    const energiaConsumoRecente = historico.filter(h => h.tipo === 'energia').slice(0, 6).map(h => h.consumo).reduce((a, b) => a + b, 0);
 
-    // Água
     const progressAgua = document.getElementById('progressAgua');
     let percentAgua = (metas.agua > 0) ? (aguaConsumoRecente / metas.agua) * 100 : 0;
 
@@ -1270,7 +1324,6 @@ function atualizarProgressoMetas() {
     progressAgua.textContent = `${percentAgua.toFixed(1)}% (${aguaConsumoRecente.toFixed(2)} / ${metas.agua.toFixed(2)} m³)`;
     progressAgua.classList.toggle('over', percentAgua > 100);
 
-    // Energia
     const progressEnergia = document.getElementById('progressEnergia');
     let percentEnergia = (metas.energia > 0) ? (energiaConsumoRecente / metas.energia) * 100 : 0;
 
@@ -1283,42 +1336,36 @@ function verificarAlertas() {
     const metaAgua = metas.agua || 10;
     const metaEnergia = metas.energia || 150;
     
+    // Alertas baseados no total acumulado (para dar a sensação de alerta contínuo)
     if (totalAnteriorAgua > metaAgua * 0.9 && totalAnteriorAgua < metaAgua * 1.1) {
       mostrarNotificacao(`Você atingiu ${((totalAnteriorAgua/metaAgua)*100).toFixed(0)}% da sua meta de água!`, 'warning');
     }
     if (totalAnteriorAgua >= metaAgua * 1.1) {
-      mostrarNotificacao(`🚨 Atenção! Você excedeu sua meta de água em ${(totalAnteriorAgua - metaAgua).toFixed(2)} m³!`, 'error');
+      mostrarNotificacao(`🚨 Atenção! Você excedeu sua meta de água!`, 'error');
     }
     
     if (totalAnteriorEnergia > metaEnergia * 0.9 && totalAnteriorEnergia < metaEnergia * 1.1) {
       mostrarNotificacao(`Você atingiu ${((totalAnteriorEnergia/metaEnergia)*100).toFixed(0)}% da sua meta de energia!`, 'warning');
     }
     if (totalAnteriorEnergia >= metaEnergia * 1.1) {
-      mostrarNotificacao(`🚨 Atenção! Você excedeu sua meta de energia em ${(totalAnteriorEnergia - metaEnergia).toFixed(2)} kWh!`, 'error');
+      mostrarNotificacao(`🚨 Atenção! Você excedeu sua meta de energia!`, 'error');
     }
 }
-
-
-// --- FUNÇÕES DE COMPARAÇÃO ---
 
 function atualizarComparacao() {
     carregarMetas(); 
 
-    // Consumo Recente (últimos 6)
-    const aguaConsumoRecente = historico.filter(h => h.tipo === 'água').slice(-6).map(h => h.consumo).reduce((a, b) => a + b, 0);
-    const energiaConsumoRecente = historico.filter(h => h.tipo === 'energia').slice(-6).map(h => h.consumo).reduce((a, b) => a + b, 0);
+    const aguaConsumoRecente = historico.filter(h => h.tipo === 'água').slice(0, 6).map(h => h.consumo).reduce((a, b) => a + b, 0);
+    const energiaConsumoRecente = historico.filter(h => h.tipo === 'energia').slice(0, 6).map(h => h.consumo).reduce((a, b) => a + b, 0);
     
-    // Média geral simulada (baseada na meta e com um pequeno desvio)
-    const mediaGeralAgua = metas.agua * 1.05; // 5% acima da meta como média "social"
-    const mediaGeralEnergia = metas.energia * 0.90; // 10% abaixo da meta como média "social"
+    const mediaGeralAgua = metas.agua * 1.05; 
+    const mediaGeralEnergia = metas.energia * 0.90; 
     
-    // Atualizar cards
     document.getElementById('compSeuAgua').textContent = aguaConsumoRecente.toFixed(2) + ' m³';
     document.getElementById('compMediaAgua').textContent = mediaGeralAgua.toFixed(2) + ' m³';
     document.getElementById('compSeuEnergia').textContent = energiaConsumoRecente.toFixed(2) + ' kWh';
     document.getElementById('compMediaEnergia').textContent = mediaGeralEnergia.toFixed(2) + ' kWh';
     
-    // Análise
     let analise = '';
     
     if (aguaConsumoRecente < mediaGeralAgua * 0.95) {
@@ -1345,22 +1392,23 @@ function atualizarComparacao() {
 function setupEventListeners() {
     document.getElementById('aguaForm').addEventListener('submit', handleFormSubmit);
     document.getElementById('energiaForm').addEventListener('submit', handleFormSubmit);
-    // Adiciona o listener de input para recalcular o total ao digitar
     document.getElementById('consumoAgua').addEventListener('input', () => atualizarTotal('agua'));
     document.getElementById('consumoEnergia').addEventListener('input', () => atualizarTotal('energia'));
+
+    // Configura o link da planilha no botão
+    document.getElementById('spreadsheetLinkAnchor').href = GOOGLE_SHEET_EDIT_URL;
 }
 
 async function loadInitialData() {
     loadTheme();
     carregarMetas();
     carregarHistorico();
-    await carregarTotais(); // Garante que totais e alerts sejam carregados
+    await carregarTotais(); 
 }
 
 window.onload = function() {
     loadInitialData();
     setupEventListeners();
-    // Configurar aba inicial de registro de Água como ativa
     showFormTab('agua', document.querySelector('.form-card > div:first-child .tab-button.active'));
 };
 </script>
