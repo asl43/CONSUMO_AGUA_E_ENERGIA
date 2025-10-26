@@ -6,7 +6,7 @@
 <title>Registro de Consumo - Água e Energia</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 <style>
   * {
     box-sizing: border-box;
@@ -75,12 +75,7 @@
     animation: slideDown 0.6s ease-out;
   }
 
-  .header-controls {
-    display: flex;
-    gap: 10px;
-  }
-
-  .theme-toggle, .backup-btn {
+  .theme-toggle {
     background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
     border: 2px solid rgba(255, 255, 255, 0.3);
@@ -92,36 +87,9 @@
     transition: all 0.3s;
   }
 
-  .theme-toggle:hover, .backup-btn:hover {
+  .theme-toggle:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: scale(1.05);
-  }
-
-  .status-indicator {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-
-  .status-indicator.online { color: var(--success); }
-  .status-indicator.offline { color: var(--danger); }
-
-  .status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: currentColor;
-    animation: pulse 2s infinite;
   }
 
   @keyframes slideDown {
@@ -323,12 +291,6 @@
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     width: 100%;
-    position: relative;
-  }
-
-  button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
   }
 
   .btn-primary {
@@ -337,7 +299,7 @@
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
   }
 
-  .btn-primary:hover:not(:disabled) {
+  .btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
   }
@@ -353,7 +315,7 @@
     color: white;
   }
 
-  .btn-secondary:hover:not(:disabled) {
+  .btn-secondary:hover {
     background: var(--primary);
     color: white;
     transform: translateY(-2px);
@@ -367,23 +329,6 @@
   .btn-danger {
     background: var(--danger);
     color: white;
-  }
-
-  .spinner {
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-top: 3px solid white;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    animation: spin 1s linear infinite;
-    display: inline-block;
-    margin-left: 10px;
-    vertical-align: middle;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
   }
 
   .mensagem {
@@ -443,18 +388,17 @@
     z-index: 1000;
     animation: slideInRight 0.3s;
     max-width: 300px;
-  }
-
-  .notification.warning {
-    border-left: 4px solid var(--warning);
+    border-left: 4px solid;
   }
 
   .notification.success {
-    border-left: 4px solid var(--success);
+    border-color: var(--success);
   }
-
+  .notification.warning {
+    border-color: var(--warning);
+  }
   .notification.error {
-    border-left: 4px solid var(--danger);
+    border-color: var(--danger);
   }
 
   @keyframes slideInRight {
@@ -491,6 +435,8 @@
     color: white;
     font-weight: 600;
     font-size: 14px;
+    white-space: nowrap; /* Impede que o texto quebre */
+    padding: 0 10px;
   }
 
   .progress-fill.over {
@@ -532,55 +478,9 @@
 
   .export-buttons {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 10px;
     margin: 20px 0;
-  }
-
-  .filter-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
-  }
-
-  .backup-section {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 12px;
-    margin-top: 20px;
-  }
-
-  body.dark-mode .backup-section {
-    background: #0f3460;
-  }
-
-  .file-input-wrapper {
-    position: relative;
-    overflow: hidden;
-    display: inline-block;
-    width: 100%;
-  }
-
-  .file-input-wrapper input[type=file] {
-    position: absolute;
-    left: -9999px;
-  }
-
-  .file-input-label {
-    display: block;
-    padding: 14px 16px;
-    background: white;
-    border: 2px dashed var(--primary);
-    border-radius: 12px;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.3s;
-  }
-
-  .file-input-label:hover {
-    background: #f8f9fa;
-    border-color: var(--secondary);
   }
 
   @media (max-width: 768px) {
@@ -609,15 +509,6 @@
     .chart-container {
       height: 250px;
     }
-
-    .status-indicator {
-      font-size: 10px;
-      padding: 6px 12px;
-    }
-
-    .export-buttons {
-      grid-template-columns: 1fr;
-    }
   }
 
   @keyframes fadeIn {
@@ -625,30 +516,22 @@
     to {opacity: 1;}
   }
 
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
-
   .loading {
     animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
   }
 </style>
 </head>
 <body>
 
-<div class="status-indicator online" id="statusIndicator">
-  <span class="status-dot"></span>
-  <span>Online</span>
-</div>
-
 <div class="container">
   <div class="header">
     <h1>💧⚡ Registro de Consumo</h1>
-    <div class="header-controls">
-      <button class="backup-btn" onclick="toggleBackupModal()" title="Backup e Restauração">💾</button>
-      <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">🌙</button>
-    </div>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
   </div>
 
   <div class="main-tabs">
@@ -669,7 +552,6 @@
     </button>
   </div>
 
-  <!-- ABA REGISTRO -->
   <div id="registro" class="main-content active">
     <div class="stats-grid">
       <div class="stat-card">
@@ -684,10 +566,10 @@
 
     <div class="form-card">
       <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
-        <button class="tab-button" style="flex: 1; min-width: 150px;" onclick="showFormTab('agua')">
+        <button class="tab-button active" style="flex: 1; min-width: 150px;" onclick="showFormTab('agua', this)">
           💧 Água
         </button>
-        <button class="tab-button" style="flex: 1; min-width: 150px;" onclick="showFormTab('energia')">
+        <button class="tab-button" style="flex: 1; min-width: 150px;" onclick="showFormTab('energia', this)">
           ⚡ Energia
         </button>
       </div>
@@ -695,32 +577,32 @@
       <div id="formAgua" class="form-content">
         <form id="aguaForm">
           <div class="form-group">
-            <label for="nomeAgua">Nome *</label>
-            <input type="text" id="nomeAgua" name="nome" required placeholder="Digite seu nome" aria-required="true">
+            <label>Nome</label>
+            <input type="text" name="nome" required placeholder="Digite seu nome">
           </div>
 
           <div class="form-group">
-            <label for="matriculaAgua">Matrícula *</label>
-            <input type="text" id="matriculaAgua" name="matricula" required placeholder="Digite sua matrícula" aria-required="true">
+            <label>Matrícula</label>
+            <input type="text" name="matricula" required placeholder="Digite sua matrícula">
           </div>
 
           <div class="form-group">
-            <label for="dataHoraAgua">Data e Hora *</label>
-            <input type="datetime-local" id="dataHoraAgua" name="dataHora" required aria-required="true">
+            <label>Data e Hora</label>
+            <input type="datetime-local" name="dataHora" required>
           </div>
 
           <div class="form-group">
-            <label for="consumoAgua">Consumo de Água (m³) *</label>
-            <input type="number" name="consumoAgua" id="consumoAgua" step="0.01" min="0" required placeholder="0.00" aria-label="Digite o consumo de água em metros cúbicos" aria-required="true">
+            <label>Consumo de Água (m³)</label>
+            <input type="number" name="consumoAgua" id="consumoAgua" step="0.01" required placeholder="0.00">
           </div>
 
           <div class="form-group">
-            <label for="totalAgua">Novo Total (m³)</label>
-            <input type="number" name="totalAgua" id="totalAgua" step="0.01" readonly aria-readonly="true">
+            <label>Novo Total (m³)</label>
+            <input type="number" name="totalAgua" id="totalAgua" step="0.01" readonly>
           </div>
 
           <div class="button-group">
-            <button type="button" class="btn btn-secondary" onclick="confirmarResetTotal('agua')">
+            <button type="button" class="btn btn-secondary" onclick="definirInicio('agua')">
               🔄 Redefinir Total Inicial
             </button>
           </div>
@@ -728,57 +610,57 @@
           <div style="margin-top: 24px; padding-top: 24px; border-top: 2px dashed #e0e0e0;">
             <h3 style="margin-bottom: 16px;">📝 Campos Adicionais (Opcional)</h3>
             <div class="form-group">
-              <label for="extra1Agua">Campo Extra 1</label>
-              <input type="text" id="extra1Agua" name="extra1" placeholder="Opcional">
+              <label>Campo Extra 1</label>
+              <input type="text" name="extra1" placeholder="Opcional">
             </div>
 
             <div class="form-group">
-              <label for="extra2Agua">Campo Extra 2</label>
-              <input type="text" id="extra2Agua" name="extra2" placeholder="Opcional">
+              <label>Campo Extra 2</label>
+              <input type="text" name="extra2" placeholder="Opcional">
             </div>
 
             <div class="form-group">
-              <label for="extra3Agua">Campo Extra 3</label>
-              <input type="text" id="extra3Agua" name="extra3" placeholder="Opcional">
+              <label>Campo Extra 3</label>
+              <input type="text" name="extra3" placeholder="Opcional">
             </div>
           </div>
 
           <div class="button-group">
-            <button type="submit" class="btn btn-primary" id="btnSubmitAgua">✅ Enviar Registro de Água</button>
+            <button type="submit" class="btn btn-primary">✅ Enviar Registro de Água</button>
           </div>
-          <p class="mensagem" id="msgAgua" role="alert"></p>
+          <p class="mensagem" id="msgAgua"></p>
         </form>
       </div>
 
       <div id="formEnergia" class="form-content" style="display: none;">
         <form id="energiaForm">
           <div class="form-group">
-            <label for="nomeEnergia">Nome *</label>
-            <input type="text" id="nomeEnergia" name="nome" required placeholder="Digite seu nome" aria-required="true">
+            <label>Nome</label>
+            <input type="text" name="nome" required placeholder="Digite seu nome">
           </div>
 
           <div class="form-group">
-            <label for="matriculaEnergia">Matrícula *</label>
-            <input type="text" id="matriculaEnergia" name="matricula" required placeholder="Digite sua matrícula" aria-required="true">
+            <label>Matrícula</label>
+            <input type="text" name="matricula" required placeholder="Digite sua matrícula">
           </div>
 
           <div class="form-group">
-            <label for="dataHoraEnergia">Data e Hora *</label>
-            <input type="datetime-local" id="dataHoraEnergia" name="dataHora" required aria-required="true">
+            <label>Data e Hora</label>
+            <input type="datetime-local" name="dataHora" required>
           </div>
 
           <div class="form-group">
-            <label for="consumoEnergia">Consumo de Energia (kWh) *</label>
-            <input type="number" name="consumoEnergia" id="consumoEnergia" step="0.01" min="0" required placeholder="0.00" aria-label="Digite o consumo de energia em kilowatt-hora" aria-required="true">
+            <label>Consumo de Energia (kWh)</label>
+            <input type="number" name="consumoEnergia" id="consumoEnergia" step="0.01" required placeholder="0.00">
           </div>
 
           <div class="form-group">
-            <label for="totalEnergia">Novo Total (kWh)</label>
-            <input type="number" name="totalEnergia" id="totalEnergia" step="0.01" readonly aria-readonly="true">
+            <label>Novo Total (kWh)</label>
+            <input type="number" name="totalEnergia" id="totalEnergia" step="0.01" readonly>
           </div>
 
           <div class="button-group">
-            <button type="button" class="btn btn-secondary" onclick="confirmarResetTotal('energia')">
+            <button type="button" class="btn btn-secondary" onclick="definirInicio('energia')">
               🔄 Redefinir Total Inicial
             </button>
           </div>
@@ -786,31 +668,30 @@
           <div style="margin-top: 24px; padding-top: 24px; border-top: 2px dashed #e0e0e0;">
             <h3 style="margin-bottom: 16px;">📝 Campos Adicionais (Opcional)</h3>
             <div class="form-group">
-              <label for="extra1Energia">Campo Extra 1</label>
-              <input type="text" id="extra1Energia" name="extra1" placeholder="Opcional">
+              <label>Campo Extra 1</label>
+              <input type="text" name="extra1" placeholder="Opcional">
             </div>
 
             <div class="form-group">
-              <label for="extra2Energia">Campo Extra 2</label>
-              <input type="text" id="extra2Energia" name="extra2" placeholder="Opcional">
+              <label>Campo Extra 2</label>
+              <input type="text" name="extra2" placeholder="Opcional">
             </div>
 
             <div class="form-group">
-              <label for="extra3Energia">Campo Extra 3</label>
-              <input type="text" id="extra3Energia" name="extra3" placeholder="Opcional">
+              <label>Campo Extra 3</label>
+              <input type="text" name="extra3" placeholder="Opcional">
             </div>
           </div>
 
           <div class="button-group">
-            <button type="submit" class="btn btn-primary" id="btnSubmitEnergia">✅ Enviar Registro de Energia</button>
+            <button type="submit" class="btn btn-primary">✅ Enviar Registro de Energia</button>
           </div>
-          <p class="mensagem" id="msgEnergia" role="alert"></p>
+          <p class="mensagem" id="msgEnergia"></p>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- ABA DASHBOARD -->
   <div id="dashboard" class="main-content">
     <div class="stats-grid">
       <div class="stat-card">
@@ -832,21 +713,20 @@
     </div>
 
     <div class="form-card">
-      <h2 style="margin-bottom: 20px;">📈 Gráfico de Consumo</h2>
+      <h2 style="margin-bottom: 20px;">📈 Gráfico de Consumo (Últimos 6 Registros)</h2>
       <div class="chart-container">
         <canvas id="consumptionChart"></canvas>
       </div>
     </div>
 
     <div class="form-card" style="margin-top: 20px;">
-      <h2 style="margin-bottom: 20px;">📊 Distribuição por Tipo</h2>
+      <h2 style="margin-bottom: 20px;">📊 Distribuição por Tipo (Total)</h2>
       <div class="chart-container" style="height: 250px;">
         <canvas id="pieChart"></canvas>
       </div>
     </div>
   </div>
 
-  <!-- ABA HISTÓRICO -->
   <div id="historico" class="main-content">
     <div class="form-card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
@@ -857,25 +737,13 @@
         </div>
       </div>
       
-      <div class="filter-row">
-        <div class="form-group">
-          <label for="filtroTipo">Filtrar por Tipo</label>
-          <select id="filtroTipo" onchange="filtrarHistorico()">
-            <option value="todos">Todos</option>
-            <option value="água">💧 Água</option>
-            <option value="energia">⚡ Energia</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="filtroPeriodo">Período</label>
-          <select id="filtroPeriodo" onchange="filtrarHistorico()">
-            <option value="todos">Todos</option>
-            <option value="hoje">Hoje</option>
-            <option value="semana">Esta Semana</option>
-            <option value="mes">Este Mês</option>
-          </select>
-        </div>
+      <div class="form-group">
+        <label>Filtrar por Tipo</label>
+        <select id="filtroTipo" onchange="filtrarHistorico()">
+          <option value="todos">Todos</option>
+          <option value="agua">Água</option>
+          <option value="energia">Energia</option>
+        </select>
       </div>
 
       <div style="overflow-x: auto;">
@@ -899,61 +767,59 @@
     </div>
   </div>
 
-  <!-- ABA METAS -->
   <div id="metas" class="main-content">
     <div class="form-card">
       <h2 style="margin-bottom: 20px;">🎯 Definir Metas de Consumo</h2>
       
       <div class="form-group">
-        <label for="metaAgua">Meta de Água Mensal (m³)</label>
-        <input type="number" id="metaAgua" step="0.01" min="0" placeholder="Ex: 10.00" onchange="salvarMetas()">
+        <label>Meta de Água Mensal (m³)</label>
+        <input type="number" id="metaAgua" step="0.01" placeholder="Ex: 10.00" onchange="salvarMetas()">
       </div>
 
       <div class="form-group">
-        <label for="metaEnergia">Meta de Energia Mensal (kWh)</label>
-        <input type="number" id="metaEnergia" step="0.01" min="0" placeholder="Ex: 150.00" onchange="salvarMetas()">
+        <label>Meta de Energia Mensal (kWh)</label>
+        <input type="number" id="metaEnergia" step="0.01" placeholder="Ex: 150.00" onchange="salvarMetas()">
       </div>
 
       <div class="goal-progress">
-        <h3 style="margin-bottom: 10px;">Progresso - Água</h3>
+        <h3 style="margin-bottom: 10px;">Progresso - Água (Consumo Recente)</h3>
         <div class="progress-bar">
-          <div class="progress-fill" id="progressAgua" style="width: 0%;">0%</div>
+          <div class="progress-fill" id="progressAgua" style="width: 0%;">0% (0.00 / 0.00 m³)</div>
         </div>
       </div>
 
       <div class="goal-progress">
-        <h3 style="margin-bottom: 10px;">Progresso - Energia</h3>
+        <h3 style="margin-bottom: 10px;">Progresso - Energia (Consumo Recente)</h3>
         <div class="progress-bar">
-          <div class="progress-fill" id="progressEnergia" style="width: 0%;">0%</div>
+          <div class="progress-fill" id="progressEnergia" style="width: 0%;">0% (0.00 / 0.00 kWh)</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ABA COMPARAÇÃO -->
   <div id="comparacao" class="main-content">
     <div class="form-card">
-      <h2 style="margin-bottom: 20px;">👥 Comparação com Média</h2>
+      <h2 style="margin-bottom: 20px;">👥 Comparação com Média (Simulada)</h2>
       
       <div class="comparison-section">
         <div class="comparison-card">
           <div class="icon">💧</div>
-          <div class="label">Seu Consumo de Água</div>
+          <div class="label">Seu Consumo (Recente)</div>
           <div class="value" id="compSeuAgua">0.00 m³</div>
         </div>
         <div class="comparison-card">
           <div class="icon">📊</div>
-          <div class="label">Média Geral</div>
+          <div class="label">Média Geral (Simulada)</div>
           <div class="value" id="compMediaAgua">0.00 m³</div>
         </div>
         <div class="comparison-card">
           <div class="icon">⚡</div>
-          <div class="label">Sua Energia</div>
+          <div class="label">Sua Energia (Recente)</div>
           <div class="value" id="compSeuEnergia">0.00 kWh</div>
         </div>
         <div class="comparison-card">
           <div class="icon">📊</div>
-          <div class="label">Média Geral</div>
+          <div class="label">Média Geral (Simulada)</div>
           <div class="value" id="compMediaEnergia">0.00 kWh</div>
         </div>
       </div>
@@ -964,37 +830,20 @@
       </div>
     </div>
   </div>
-
-  <!-- MODAL BACKUP -->
-  <div id="backupModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center;">
-    <div class="form-card" style="max-width: 500px; margin: 20px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2>💾 Backup e Restauração</h2>
-        <button onclick="toggleBackupModal()" style="background: none; border: none; font-size: 24px; cursor: pointer;">✕</button>
-      </div>
-
-      <div class="backup-section">
-        <h3 style="margin-bottom: 15px;">📤 Exportar Backup</h3>
-        <p style="margin-bottom: 15px; font-size: 14px;">Salve todos os seus dados em um arquivo JSON.</p>
-        <button class="btn btn-primary" onclick="exportarBackup()">💾 Baixar Backup</button>
-      </div>
-
-      <div class="backup-section">
-        <h3 style="margin-bottom: 15px;">📥 Importar Backup</h3>
-        <p style="margin-bottom: 15px; font-size: 14px;">Restaure seus dados a partir de um arquivo de backup.</p>
-        <div class="file-input-wrapper">
-          <input type="file" id="backupFile" accept=".json" onchange="importarBackup(this.files[0])">
-          <label for="backupFile" class="file-input-label">
-            📁 Selecionar arquivo de backup
-          </label>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <script>
+// CONFIGURAÇÕES GLOBAIS
 const scriptURL = "https://script.google.com/macros/s/AKfycbyfpjvwFpYmruXMHYlOBu6_XY_I1U0qRRGapmXU8SgmyvVdNVK2iCJwp-fxn58ipx1U/exec";
+
+const DATA_KEYS = {
+    TOTAL_AGUA: 'totalAnteriorAgua',
+    TOTAL_ENERGIA: 'totalAnteriorEnergia',
+    HISTORICO: 'historico',
+    METAS_AGUA: 'metaAgua',
+    METAS_ENERGIA: 'metaEnergia',
+    THEME: 'theme'
+};
 
 let totalAnteriorAgua = 0;
 let totalAnteriorEnergia = 0;
@@ -1002,167 +851,28 @@ let historico = [];
 let metas = { agua: 10, energia: 150 };
 let chartInstance = null;
 let pieChartInstance = null;
-let isOnline = navigator.onLine;
 
-// ========== UTILITÁRIOS ==========
+// --- FUNÇÕES DE UTILITY (LOCAL STORAGE & UX) ---
 
-// Debounce function
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-}
-
-// Sanitizar inputs
-function sanitizarInput(valor) {
-  return String(valor).replace(/[<>]/g, '');
-}
-
-// Validar consumo
-function validarConsumo(valor, tipo) {
-  const num = parseFloat(valor);
-  if (isNaN(num) || num < 0) {
-    alert('⚠️ Por favor, insira um valor válido e positivo.');
-    return false;
-  }
-  if (tipo === 'agua' && num > 100) {
-    return confirm('⚠️ Consumo muito alto para água (>100 m³). Deseja confirmar?');
-  }
-  if (tipo === 'energia' && num > 1000) {
-    return confirm('⚠️ Consumo muito alto para energia (>1000 kWh). Deseja confirmar?');
-  }
-  return true;
-}
-
-// ========== TEMA ESCURO ==========
-function toggleTheme() {
-  document.body.classList.toggle('dark-mode');
-  const icon = document.querySelector('.theme-toggle');
-  icon.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-  localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-}
-
-// ========== STATUS ONLINE/OFFLINE ==========
-function atualizarStatusConexao() {
-  const indicator = document.getElementById('statusIndicator');
-  isOnline = navigator.onLine;
-  
-  if (isOnline) {
-    indicator.className = 'status-indicator online';
-    indicator.innerHTML = '<span class="status-dot"></span><span>Online</span>';
-  } else {
-    indicator.className = 'status-indicator offline';
-    indicator.innerHTML = '<span class="status-dot"></span><span>Offline</span>';
-    mostrarNotificacao('⚠️ Você está offline. Os dados serão sincronizados quando a conexão for restabelecida.', 'warning');
-  }
-}
-
-window.addEventListener('online', atualizarStatusConexao);
-window.addEventListener('offline', atualizarStatusConexao);
-
-// ========== NAVEGAÇÃO ==========
-function showMainTab(tabId) {
-  document.querySelectorAll('.main-content').forEach(div => div.classList.remove('active'));
-  document.querySelectorAll('.main-tabs .tab-button').forEach(btn => btn.classList.remove('active'));
-  document.getElementById(tabId).classList.add('active');
-  event.target.closest('.tab-button').classList.add('active');
-  
-  if (tabId === 'dashboard') {
-    setTimeout(criarGraficos, 100);
-  } else if (tabId === 'historico') {
-    carregarHistorico();
-  } else if (tabId === 'metas') {
-    atualizarProgressoMetas();
-  } else if (tabId === 'comparacao') {
-    atualizarComparacao();
-  }
-}
-
-function showFormTab(tipo) {
-  document.querySelectorAll('.form-content').forEach(div => div.style.display = 'none');
-  document.getElementById(`form${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`).style.display = 'block';
-  
-  const buttons = document.querySelectorAll('.form-card > div:first-child .tab-button');
-  buttons.forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
-}
-
-// ========== CARREGAR TOTAIS ==========
-async function carregarTotais() {
-  try {
-    const res = await fetch(`${scriptURL}?action=getLast`);
-    if (!res.ok) throw new Error('Erro na requisição');
-    
-    const data = await res.json();
-    totalAnteriorAgua = parseFloat(data.agua) || parseFloat(localStorage.getItem('totalAnteriorAgua')) || 0;
-    totalAnteriorEnergia = parseFloat(data.energia) || parseFloat(localStorage.getItem('totalAnteriorEnergia')) || 0;
-    
-    // Salvar no localStorage como backup
-    localStorage.setItem('totalAnteriorAgua', totalAnteriorAgua);
-    localStorage.setItem('totalAnteriorEnergia', totalAnteriorEnergia);
-    
-    atualizarDisplayTotais();
-    verificarAlertas();
-  } catch (err) {
-    console.error("Erro ao carregar totais:", err);
-    mostrarNotificacao('⚠️ Erro ao carregar dados do servidor. Usando cache local.', 'warning');
-    
-    // Usar dados do localStorage como fallback
-    totalAnteriorAgua = parseFloat(localStorage.getItem('totalAnteriorAgua')) || 0;
-    totalAnteriorEnergia = parseFloat(localStorage.getItem('totalAnteriorEnergia')) || 0;
-    atualizarDisplayTotais();
-  }
-}
-
-function atualizarDisplayTotais() {
-  document.getElementById("totalAgua").value = totalAnteriorAgua.toFixed(2);
-  document.getElementById("totalEnergia").value = totalAnteriorEnergia.toFixed(2);
-  document.getElementById("displayTotalAgua").textContent = totalAnteriorAgua.toFixed(2) + " m³";
-  document.getElementById("displayTotalEnergia").textContent = totalAnteriorEnergia.toFixed(2) + " kWh";
-}
-
-// ========== ATUALIZAR TOTAL (com debounce) ==========
-const atualizarTotalDebounced = debounce((tipo) => {
-  const consumo = parseFloat(document.getElementById(`consumo${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`).value) || 0;
-  const totalAnterior = tipo === 'agua' ? totalAnteriorAgua : totalAnteriorEnergia;
-  const novoTotal = (consumo + totalAnterior).toFixed(2);
-  document.getElementById(`total${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`).value = novoTotal;
-}, 300);
-
-// ========== REDEFINIR TOTAL COM CONFIRMAÇÃO ==========
-function confirmarResetTotal(tipo) {
-  const tipoNome = tipo === 'agua' ? 'Água' : 'Energia';
-  if (confirm(`⚠️ Tem certeza que deseja redefinir o total de ${tipoNome}? Esta ação não pode ser desfeita.`)) {
-    definirInicio(tipo);
-  }
-}
-
-function definirInicio(tipo) {
-  const novoValor = prompt(`Digite o novo total inicial de ${tipo === 'agua' ? 'Água (m³)' : 'Energia (kWh)'}:`);
-  if (novoValor !== null && !isNaN(novoValor) && parseFloat(novoValor) >= 0) {
-    const valorNum = parseFloat(novoValor);
-    if (tipo === 'agua') {
-      totalAnteriorAgua = valorNum;
-      localStorage.setItem('totalAnteriorAgua', totalAnteriorAgua);
-      document.getElementById("totalAgua").value = novoValor;
-      document.getElementById("displayTotalAgua").textContent = valorNum.toFixed(2) + " m³";
-    } else {
-      totalAnteriorEnergia = valorNum;
-      localStorage.setItem('totalAnteriorEnergia', totalAnteriorEnergia);
-      document.getElementById("totalEnergia").value = novoValor;
-      document.getElementById("displayTotalEnergia").textContent = valorNum.toFixed(2) + " kWh";
+function getLocalData(key, defaultValue = null) {
+    const data = localStorage.getItem(key);
+    try {
+        const parsed = data ? JSON.parse(data) : defaultValue;
+        // Se for um número (como os totais e metas), garantir que seja float
+        if (typeof parsed === 'string' && !isNaN(parsed)) {
+            return parseFloat(parsed);
+        }
+        return parsed;
+    } catch (e) {
+        // Retorna o valor direto se a tentativa de parse JSON falhar
+        return data || defaultValue;
     }
-    mostrarNotificacao(`✅ Total de ${tipo === 'agua' ? 'Água' : 'Energia'} redefinido com sucesso!`, 'success');
-  }
 }
 
-// ========== MENSAGENS E NOTIFICAÇÕES ==========
+function setLocalData(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+}
+
 function mostrarMensagem(elemento, texto, tipo) {
   elemento.textContent = texto;
   elemento.className = `mensagem ${tipo}`;
@@ -1175,7 +885,8 @@ function mostrarMensagem(elemento, texto, tipo) {
 function mostrarNotificacao(mensagem, tipo = 'warning') {
   const notif = document.createElement('div');
   notif.className = `notification ${tipo}`;
-  notif.innerHTML = `<strong>${tipo === 'success' ? '✅' : tipo === 'error' ? '❌' : '⚠️'} ${tipo === 'success' ? 'Sucesso' : tipo === 'error' ? 'Erro' : 'Alerta'}</strong><p>${mensagem}</p>`;
+  const icon = tipo === 'success' ? '✅ Sucesso' : tipo === 'error' ? '❌ Erro' : '⚠️ Alerta';
+  notif.innerHTML = `<strong>${icon}</strong><p>${mensagem}</p>`;
   document.body.appendChild(notif);
   
   setTimeout(() => {
@@ -1184,288 +895,285 @@ function mostrarNotificacao(mensagem, tipo = 'warning') {
   }, 5000);
 }
 
-// ========== VERIFICAR ALERTAS ==========
-function verificarAlertas() {
-  const metaAgua = parseFloat(localStorage.getItem('metaAgua')) || 10;
-  const metaEnergia = parseFloat(localStorage.getItem('metaEnergia')) || 150;
-  
-  if (totalAnteriorAgua > metaAgua * 0.9 && totalAnteriorAgua <= metaAgua) {
-    mostrarNotificacao(`💧 Você já consumiu ${((totalAnteriorAgua/metaAgua)*100).toFixed(0)}% da sua meta de água!`, 'warning');
-  } else if (totalAnteriorAgua > metaAgua) {
-    mostrarNotificacao(`🚨 Você ultrapassou sua meta de água em ${((totalAnteriorAgua/metaAgua)*100 - 100).toFixed(0)}%!`, 'error');
-  }
-  
-  if (totalAnteriorEnergia > metaEnergia * 0.9 && totalAnteriorEnergia <= metaEnergia) {
-    mostrarNotificacao(`⚡ Você já consumiu ${((totalAnteriorEnergia/metaEnergia)*100).toFixed(0)}% da sua meta de energia!`, 'warning');
-  } else if (totalAnteriorEnergia > metaEnergia) {
-    mostrarNotificacao(`🚨 Você ultrapassou sua meta de energia em ${((totalAnteriorEnergia/metaEnergia)*100 - 100).toFixed(0)}%!`, 'error');
-  }
-  
-  verificarAlertasAvancados();
+// --- FUNÇÕES DE TEMA ---
+
+function loadTheme() {
+    const theme = getLocalData(DATA_KEYS.THEME);
+    if (theme === 'dark') {
+      document.body.classList.add('dark-mode');
+      document.querySelector('.theme-toggle').textContent = '☀️';
+    } else {
+      document.querySelector('.theme-toggle').textContent = '🌙';
+    }
 }
 
-function verificarAlertasAvancados() {
-  const hist = historico.slice(-7);
+function toggleTheme() {
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  const icon = document.querySelector('.theme-toggle');
+  icon.textContent = isDark ? '☀️' : '🌙';
+  setLocalData(DATA_KEYS.THEME, isDark ? 'dark' : 'light');
+}
+
+// --- FUNÇÕES DE NAVEGAÇÃO E TOTAIS ---
+
+function showMainTab(tabId) {
+  document.querySelectorAll('.main-content').forEach(div => div.classList.remove('active'));
+  document.querySelectorAll('.main-tabs .tab-button').forEach(btn => btn.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
   
-  // Detectar tendência de aumento em água
-  const aguaRecente = hist.filter(h => h.tipo === 'água').map(h => parseFloat(h.consumo));
-  if (aguaRecente.length >= 3) {
-    const tendencia = aguaRecente.slice(-3).every((val, i, arr) => i === 0 || val > arr[i-1]);
-    if (tendencia) {
-      mostrarNotificacao('📈 Atenção: Seu consumo de água está aumentando nos últimos registros.', 'warning');
-    }
+  // Encontrar o botão clicado (target)
+  const clickedButton = Array.from(document.querySelectorAll('.main-tabs .tab-button'))
+                            .find(btn => btn.getAttribute('onclick').includes(`'${tabId}'`));
+  if(clickedButton) clickedButton.classList.add('active');
+
+  // Ações específicas de tab
+  if (tabId === 'dashboard') {
+    setTimeout(criarGraficos, 100);
+  } else if (tabId === 'historico') {
+    carregarHistorico();
+  } else if (tabId === 'metas') {
+    carregarMetas(); // Garantir que os inputs estejam preenchidos
+    atualizarProgressoMetas();
+  } else if (tabId === 'comparacao') {
+    atualizarComparacao();
   }
+}
+
+function showFormTab(tipo, button) {
+  document.querySelectorAll('.form-content').forEach(div => div.style.display = 'none');
+  document.getElementById(`form${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`).style.display = 'block';
   
-  // Detectar tendência de aumento em energia
-  const energiaRecente = hist.filter(h => h.tipo === 'energia').map(h => parseFloat(h.consumo));
-  if (energiaRecente.length >= 3) {
-    const tendencia = energiaRecente.slice(-3).every((val, i, arr) => i === 0 || val > arr[i-1]);
-    if (tendencia) {
-      mostrarNotificacao('📈 Atenção: Seu consumo de energia está aumentando nos últimos registros.', 'warning');
+  const buttons = document.querySelectorAll('.form-card > div:first-child .tab-button');
+  buttons.forEach(btn => btn.classList.remove('active'));
+  button.classList.add('active');
+}
+
+async function carregarTotais() {
+    // 1. Carregar valores locais de backup
+    totalAnteriorAgua = getLocalData(DATA_KEYS.TOTAL_AGUA, 0);
+    totalAnteriorEnergia = getLocalData(DATA_KEYS.TOTAL_ENERGIA, 0);
+
+    // 2. Tentar carregar do Google Sheets
+    try {
+        const res = await fetch(`${scriptURL}?action=getLast`);
+        const data = await res.json();
+        
+        // Se o Sheets retornar valores válidos, sobrescreva e salve no local
+        if (data.agua !== undefined && !isNaN(parseFloat(data.agua))) {
+            totalAnteriorAgua = parseFloat(data.agua);
+            setLocalData(DATA_KEYS.TOTAL_AGUA, totalAnteriorAgua);
+        }
+        if (data.energia !== undefined && !isNaN(parseFloat(data.energia))) {
+            totalAnteriorEnergia = parseFloat(data.energia);
+            setLocalData(DATA_KEYS.TOTAL_ENERGIA, totalAnteriorEnergia);
+        }
+    } catch (err) {
+        console.warn("Erro ao carregar totais do servidor. Usando dados locais.", err);
+    }
+    
+    // 3. Atualizar a UI
+    const totalAguaEl = document.getElementById("totalAgua");
+    const totalEnergiaEl = document.getElementById("totalEnergia");
+    
+    totalAguaEl.value = totalAnteriorAgua.toFixed(2);
+    totalEnergiaEl.value = totalAnteriorEnergia.toFixed(2);
+    document.getElementById("displayTotalAgua").textContent = totalAnteriorAgua.toFixed(2) + " m³";
+    document.getElementById("displayTotalEnergia").textContent = totalAnteriorEnergia.toFixed(2) + " kWh";
+    
+    // 4. Recalcular o novo total caso o campo de consumo já tenha sido preenchido
+    atualizarTotal('agua');
+    atualizarTotal('energia');
+
+    verificarAlertas();
+}
+
+function atualizarTotal(tipo) {
+  const inputConsumo = document.getElementById(`consumo${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
+  const inputTotal = document.getElementById(`total${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
+  
+  const consumo = parseFloat(inputConsumo.value) || 0;
+  const totalAnterior = tipo === 'agua' ? totalAnteriorAgua : totalAnteriorEnergia;
+  
+  const novoTotal = (consumo + totalAnterior);
+  inputTotal.value = novoTotal.toFixed(2);
+}
+
+function definirInicio(tipo) {
+  const label = tipo === 'agua' ? 'Água (m³)' : 'Energia (kWh)';
+  const novoValorStr = prompt(`Digite o novo valor do total inicial acumulado de ${label}:`);
+  
+  if (novoValorStr !== null) {
+    const novoValor = parseFloat(novoValorStr);
+    
+    if (!isNaN(novoValor) && novoValor >= 0) {
+      const valorFormatado = novoValor.toFixed(2);
+      
+      if (tipo === 'agua') {
+        totalAnteriorAgua = novoValor;
+        document.getElementById("totalAgua").value = valorFormatado;
+        document.getElementById("displayTotalAgua").textContent = valorFormatado + " m³";
+        setLocalData(DATA_KEYS.TOTAL_AGUA, totalAnteriorAgua);
+      } else {
+        totalAnteriorEnergia = novoValor;
+        document.getElementById("totalEnergia").value = valorFormatado;
+        document.getElementById("displayTotalEnergia").textContent = valorFormatado + " kWh";
+        setLocalData(DATA_KEYS.TOTAL_ENERGIA, totalAnteriorEnergia);
+      }
+      
+      atualizarTotal(tipo);
+      mostrarNotificacao(`Total Inicial de ${tipo.charAt(0).toUpperCase() + tipo.slice(1)} redefinido para ${valorFormatado}.`, 'success');
+
+    } else {
+      mostrarNotificacao('Valor inválido. Por favor, digite um número não negativo.', 'error');
     }
   }
 }
 
-// ========== ENVIO FORMULÁRIOS ==========
-document.getElementById('aguaForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const form = e.target;
-  const msg = document.getElementById('msgAgua');
-  const btn = document.getElementById('btnSubmitAgua');
-  
-  const consumoInput = form.querySelector('[name="consumoAgua"]');
-  const consumo = parseFloat(consumoInput.value);
-  
-  // Validar consumo
-  if (!validarConsumo(consumo, 'agua')) {
-    return;
-  }
-  
-  btn.innerHTML = '⏳ Enviando...<span class="spinner"></span>';
-  btn.disabled = true;
-  
-  const formData = new FormData(form);
-  
-  // Sanitizar inputs de texto
-  formData.set('nome', sanitizarInput(formData.get('nome')));
-  formData.set('matricula', sanitizarInput(formData.get('matricula')));
-  
-  try {
-    const response = await fetch(scriptURL, { method: 'POST', body: formData });
-    
-    if (!response.ok) throw new Error('Erro no envio');
-    
-    mostrarMensagem(msg, "✅ Dados de Água enviados com sucesso!", "success");
-    mostrarNotificacao('✅ Registro de água salvo com sucesso!', 'success');
-    
-    // Adicionar ao histórico local
-    historico.push({
-      data: formData.get('dataHora'),
-      tipo: 'água',
-      nome: formData.get('nome'),
-      consumo: formData.get('consumoAgua'),
-      total: formData.get('totalAgua')
-    });
-    localStorage.setItem('historico', JSON.stringify(historico));
-    
-    form.reset();
-    await carregarTotais();
-  } catch (err) {
-    console.error('Erro:', err);
-    mostrarMensagem(msg, "❌ Erro ao enviar dados. Tente novamente.", "error");
-    mostrarNotificacao('❌ Falha ao enviar. Verifique sua conexão.', 'error');
-  } finally {
-    btn.innerHTML = '✅ Enviar Registro de Água';
-    btn.disabled = false;
-  }
-});
+// --- FUNÇÕES DE FORMULÁRIO ---
 
-document.getElementById('energiaForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const form = e.target;
-  const msg = document.getElementById('msgEnergia');
-  const btn = document.getElementById('btnSubmitEnergia');
-  
-  const consumoInput = form.querySelector('[name="consumoEnergia"]');
-  const consumo = parseFloat(consumoInput.value);
-  
-  // Validar consumo
-  if (!validarConsumo(consumo, 'energia')) {
-    return;
-  }
-  
-  btn.innerHTML = '⏳ Enviando...<span class="spinner"></span>';
-  btn.disabled = true;
-  
-  const formData = new FormData(form);
-  
-  // Sanitizar inputs de texto
-  formData.set('nome', sanitizarInput(formData.get('nome')));
-  formData.set('matricula', sanitizarInput(formData.get('matricula')));
-  
-  try {
-    const response = await fetch(scriptURL, { method: 'POST', body: formData });
+async function handleFormSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const tipo = form.id === 'aguaForm' ? 'agua' : 'energia';
+    const msg = document.getElementById(`msg${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
+    const btn = form.querySelector('button[type="submit"]');
     
-    if (!response.ok) throw new Error('Erro no envio');
+    btn.classList.add('loading');
+    btn.disabled = true;
     
-    mostrarMensagem(msg, "✅ Dados de Energia enviados com sucesso!", "success");
-    mostrarNotificacao('✅ Registro de energia salvo com sucesso!', 'success');
+    const formData = new FormData(form);
     
-    // Adicionar ao histórico local
-    historico.push({
-      data: formData.get('dataHora'),
-      tipo: 'energia',
-      nome: formData.get('nome'),
-      consumo: formData.get('consumoEnergia'),
-      total: formData.get('totalEnergia')
-    });
-    localStorage.setItem('historico', JSON.stringify(historico));
-    
-    form.reset();
-    await carregarTotais();
-  } catch (err) {
-    console.error('Erro:', err);
-    mostrarMensagem(msg, "❌ Erro ao enviar dados. Tente novamente.", "error");
-    mostrarNotificacao('❌ Falha ao enviar. Verifique sua conexão.', 'error');
-  } finally {
-    btn.innerHTML = '✅ Enviar Registro de Energia';
-    btn.disabled = false;
-  }
-});
+    try {
+        await fetch(scriptURL, { method: 'POST', body: formData });
+        mostrarMensagem(msg, `✅ Dados de ${tipo.charAt(0).toUpperCase() + tipo.slice(1)} enviados com sucesso!`, "success");
+        
+        // Atualizar histórico local
+        historico.push({
+            data: formData.get('dataHora'),
+            tipo: tipo === 'agua' ? 'água' : 'energia',
+            nome: formData.get('nome'),
+            consumo: parseFloat(formData.get(`consumo${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`)),
+            total: parseFloat(formData.get(`total${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`))
+        });
+        setLocalData(DATA_KEYS.HISTORICO, historico);
+        
+        form.reset();
+        await carregarTotais(); // Atualiza o totalAnterior e a UI com o novo total
+        
+    } catch (err) {
+        console.error("Erro ao enviar dados:", err);
+        mostrarMensagem(msg, "❌ Erro ao enviar dados. Tente novamente.", "error");
+    } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }
+}
 
-// ========== GRÁFICOS ==========
+// --- FUNÇÕES DE DASHBOARD/GRÁFICOS ---
+
 function criarGraficos() {
-  const labels = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
-  const aguaData = historico.filter(h => h.tipo === 'água').slice(-6).map(h => parseFloat(h.consumo));
-  const energiaData = historico.filter(h => h.tipo === 'energia').slice(-6).map(h => parseFloat(h.consumo));
-  
-  // Preencher com dados simulados se não houver histórico suficiente
-  while (aguaData.length < 6) aguaData.unshift(Math.random() * 5 + 2);
-  while (energiaData.length < 6) energiaData.unshift(Math.random() * 50 + 100);
-  
-  // Gráfico de Linha
-  const ctx = document.getElementById('consumptionChart');
-  if (chartInstance) chartInstance.destroy();
-  
-  chartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: 'Água (m³)',
-          data: aguaData,
-          borderColor: '#667eea',
-          backgroundColor: 'rgba(102, 126, 234, 0.1)',
-          tension: 0.4,
-          fill: true
-        },
-        {
-          label: 'Energia (kWh)',
-          data: energiaData,
-          borderColor: '#f59e0b',
-          backgroundColor: 'rgba(245, 158, 11, 0.1)',
-          tension: 0.4,
-          fill: true
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'top',
-        },
-        tooltip: {
-          mode: 'index',
-          intersect: false,
-        }
+    // Pegar os últimos 6 registros de consumo (água e energia separadamente)
+    const aguaRecords = historico.filter(h => h.tipo === 'água').slice(-6);
+    const energiaRecords = historico.filter(h => h.tipo === 'energia').slice(-6);
+
+    const labels = aguaRecords.map(h => new Date(h.data).toLocaleDateString()).slice(-6);
+    const aguaData = aguaRecords.map(h => h.consumo);
+    const energiaData = energiaRecords.map(h => h.consumo);
+    
+    // Garante que o label de data corresponda a um registro, mesmo que tenha poucos
+    // Apenas usa o índice para registros com menos de 6
+    const chartLabels = labels.length > 0 ? labels : [1, 2, 3, 4, 5, 6].slice(0, Math.max(aguaData.length, energiaData.length));
+    
+    // Gráfico de Linha (Consumo Recente)
+    const ctx = document.getElementById('consumptionChart');
+    if (chartInstance) chartInstance.destroy();
+    
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: chartLabels,
+        datasets: [
+          {
+            label: 'Água (m³)',
+            data: aguaData,
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            tension: 0.4
+          },
+          {
+            label: 'Energia (kWh)',
+            data: energiaData,
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+            tension: 0.4
+          }
+        ]
       },
-      scales: {
-        y: {
-          beginAtZero: true
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' },
         }
       }
-    }
-  });
-  
-  // Gráfico de Pizza
-  const ctxPie = document.getElementById('pieChart');
-  if (pieChartInstance) pieChartInstance.destroy();
-  
-  const totalAgua = aguaData.reduce((a, b) => a + b, 0);
-  const totalEnergia = energiaData.reduce((a, b) => a + b, 0);
-  
-  pieChartInstance = new Chart(ctxPie, {
-    type: 'doughnut',
-    data: {
-      labels: ['Água (m³)', 'Energia (kWh)'],
-      datasets: [{
-        data: [totalAgua, totalEnergia],
-        backgroundColor: ['#667eea', '#f59e0b'],
-        borderWidth: 2,
-        borderColor: '#fff'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom',
-        }
+    });
+    
+    // Gráfico de Pizza (Total Geral)
+    const ctxPie = document.getElementById('pieChart');
+    if (pieChartInstance) pieChartInstance.destroy();
+    
+    const totalAgua = historico.filter(h => h.tipo === 'água').reduce((a, b) => a + b.consumo, 0);
+    const totalEnergia = historico.filter(h => h.tipo === 'energia').reduce((a, b) => a + b.consumo, 0);
+
+    // Estatísticas do Mês (usando os últimos 6 registros como "mês")
+    const aguaMes = aguaData.reduce((a, b) => a + b, 0);
+    const energiaMes = energiaData.reduce((a, b) => a + b, 0);
+    
+    pieChartInstance = new Chart(ctxPie, {
+      type: 'doughnut',
+      data: {
+        labels: ['Água', 'Energia'],
+        datasets: [{
+          data: [totalAgua, totalEnergia],
+          backgroundColor: ['#667eea', '#f59e0b']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
       }
-    }
-  });
-  
-  // Atualizar estatísticas
-  document.getElementById('aguaMes').textContent = totalAgua.toFixed(2) + ' m³';
-  document.getElementById('energiaMes').textContent = totalEnergia.toFixed(2) + ' kWh';
-  
-  const economiaCalc = Math.max(0, 100 - (totalAgua / (metas.agua || 10)) * 100);
-  document.getElementById('economiaAgua').textContent = economiaCalc.toFixed(0) + '%';
-  
-  const custoAgua = totalAgua * 5.5;
-  const custoEnergia = totalEnergia * 0.85;
-  document.getElementById('custoTotal').textContent = 'R$ ' + (custoAgua + custoEnergia).toFixed(2);
+    });
+    
+    // Atualizar estatísticas
+    document.getElementById('aguaMes').textContent = aguaMes.toFixed(2) + ' m³';
+    document.getElementById('energiaMes').textContent = energiaMes.toFixed(2) + ' kWh';
+    
+    const metaAgua = metas.agua || 10;
+    const economiaCalc = Math.max(0, 100 - (aguaMes / metaAgua) * 100);
+    document.getElementById('economiaAgua').textContent = economiaCalc.toFixed(0) + '%';
+    
+    const custoAgua = aguaMes * 5.5; // R$ por m³ (simulado)
+    const custoEnergia = energiaMes * 0.85; // R$ por kWh (simulado)
+    document.getElementById('custoTotal').textContent = 'R$ ' + (custoAgua + custoEnergia).toFixed(2);
 }
 
-// ========== HISTÓRICO ==========
+// --- FUNÇÕES DE HISTÓRICO ---
+
 function carregarHistorico() {
-  const hist = JSON.parse(localStorage.getItem('historico') || '[]');
-  historico = hist;
+  historico = getLocalData(DATA_KEYS.HISTORICO, []);
+  // Inverte o histórico para mostrar o mais recente primeiro
+  historico.sort((a, b) => new Date(b.data) - new Date(a.data)); 
   filtrarHistorico();
 }
 
 function filtrarHistorico() {
-  const filtroTipo = document.getElementById('filtroTipo').value;
-  const filtroPeriodo = document.getElementById('filtroPeriodo').value;
+  const filtro = document.getElementById('filtroTipo').value;
   const tbody = document.getElementById('historicoBody');
   
   let dadosFiltrados = historico;
-  
-  // Filtrar por tipo
-  if (filtroTipo !== 'todos') {
-    dadosFiltrados = dadosFiltrados.filter(h => h.tipo === filtroTipo);
-  }
-  
-  // Filtrar por período
-  const agora = new Date();
-  if (filtroPeriodo !== 'todos') {
-    dadosFiltrados = dadosFiltrados.filter(h => {
-      const dataItem = new Date(h.data);
-      
-      if (filtroPeriodo === 'hoje') {
-        return dataItem.toDateString() === agora.toDateString();
-      } else if (filtroPeriodo === 'semana') {
-        const umaSemanaAtras = new Date(agora.getTime() - 7 * 24 * 60 * 60 * 1000);
-        return dataItem >= umaSemanaAtras;
-      } else if (filtroPeriodo === 'mes') {
-        return dataItem.getMonth() === agora.getMonth() && dataItem.getFullYear() === agora.getFullYear();
-      }
-      return true;
-    });
+  if (filtro !== 'todos') {
+    dadosFiltrados = historico.filter(h => h.tipo === filtro);
   }
   
   if (dadosFiltrados.length === 0) {
@@ -1473,7 +1181,7 @@ function filtrarHistorico() {
     return;
   }
   
-  tbody.innerHTML = dadosFiltrados.reverse().map(item => `
+  tbody.innerHTML = dadosFiltrados.map(item => `
     <tr>
       <td>${new Date(item.data).toLocaleString('pt-BR')}</td>
       <td>${item.tipo === 'água' ? '💧 Água' : '⚡ Energia'}</td>
@@ -1484,334 +1192,177 @@ function filtrarHistorico() {
   `).join('');
 }
 
-// ========== EXPORTAR CSV ==========
 function exportarCSV() {
-  const csv = ['Data/Hora,Tipo,Nome,Consumo,Total'];
-  historico.forEach(item => {
-    csv.push(`${new Date(item.data).toLocaleString('pt-BR')},${item.tipo},${item.nome},${parseFloat(item.consumo).toFixed(2)},${parseFloat(item.total).toFixed(2)}`);
-  });
-  
-  const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `historico_consumo_${new Date().toISOString().split('T')[0]}.csv`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  mostrarNotificacao('✅ Arquivo CSV exportado com sucesso!', 'success');
+    const csv = ['"Data/Hora","Tipo","Nome","Consumo","Total"'];
+    historico.forEach(item => {
+        csv.push(`"${new Date(item.data).toLocaleString('pt-BR')}","${item.tipo}","${item.nome}","${parseFloat(item.consumo).toFixed(2)}","${parseFloat(item.total).toFixed(2)}"`);
+    });
+    
+    const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `historico_consumo_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    mostrarNotificacao('Arquivo CSV exportado com sucesso!', 'success');
 }
 
-// ========== EXPORTAR PDF ==========
 function exportarPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  
-  // Título
-  doc.setFontSize(18);
-  doc.text("Histórico de Consumo - Água e Energia", 14, 20);
-  
-  // Informações gerais
-  doc.setFontSize(10);
-  doc.text(`Total de Registros: ${historico.length}`, 14, 28);
-  doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 34);
-  doc.text(`Total Água: ${totalAnteriorAgua.toFixed(2)} m³`, 14, 40);
-  doc.text(`Total Energia: ${totalAnteriorEnergia.toFixed(2)} kWh`, 14, 46);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    doc.text("Registro de Consumo - Água e Energia", 14, 20);
+    doc.setFontSize(10);
+    doc.text(`Total de Registros: ${historico.length}`, 14, 28);
+    doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 34);
 
-  // Tabela
-  const tableData = historico.map(item => [
-    new Date(item.data).toLocaleString('pt-BR'),
-    item.tipo.charAt(0).toUpperCase() + item.tipo.slice(1),
-    item.nome,
-    `${parseFloat(item.consumo).toFixed(2)} ${item.tipo === 'água' ? 'm³' : 'kWh'}`,
-    `${parseFloat(item.total).toFixed(2)} ${item.tipo === 'água' ? 'm³' : 'kWh'}`,
-  ]);
+    const tableData = historico.map(item => [
+        new Date(item.data).toLocaleString('pt-BR'),
+        item.tipo.charAt(0).toUpperCase() + item.tipo.slice(1),
+        item.nome,
+        `${parseFloat(item.consumo).toFixed(2)} ${item.tipo === 'água' ? 'm³' : 'kWh'}`,
+        `${parseFloat(item.total).toFixed(2)} ${item.tipo === 'água' ? 'm³' : 'kWh'}`,
+    ]);
 
-  doc.autoTable({
-    head: [['Data/Hora', 'Tipo', 'Nome', 'Consumo', 'Total']],
-    body: tableData,
-    startY: 52,
-    styles: { fontSize: 8, cellPadding: 2 },
-    headStyles: { fillColor: [102, 126, 234] },
-    alternateRowStyles: { fillColor: [245, 247, 250] }
-  });
-  
-  doc.save(`historico_consumo_${new Date().toISOString().split('T')[0]}.pdf`);
-  mostrarNotificacao('✅ Arquivo PDF exportado com sucesso!', 'success');
+    doc.autoTable({
+        head: [['Data/Hora', 'Tipo', 'Nome', 'Consumo', 'Total']],
+        body: tableData,
+        startY: 40,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [102, 126, 234] }
+    });
+    
+    doc.save(`historico_consumo_${new Date().toISOString().split('T')[0]}.pdf`);
+    mostrarNotificacao('Arquivo PDF exportado com sucesso!', 'success');
 }
 
-// ========== METAS ==========
+
+// --- FUNÇÕES DE METAS ---
+
 function carregarMetas() {
-  metas.agua = parseFloat(localStorage.getItem('metaAgua')) || 10;
-  metas.energia = parseFloat(localStorage.getItem('metaEnergia')) || 150;
-  document.getElementById('metaAgua').value = metas.agua;
-  document.getElementById('metaEnergia').value = metas.energia;
+    metas.agua = getLocalData(DATA_KEYS.METAS_AGUA, 10);
+    metas.energia = getLocalData(DATA_KEYS.METAS_ENERGIA, 150);
+    document.getElementById('metaAgua').value = metas.agua;
+    document.getElementById('metaEnergia').value = metas.energia;
 }
 
 function salvarMetas() {
-  const metaAguaInput = document.getElementById('metaAgua').value;
-  const metaEnergiaInput = document.getElementById('metaEnergia').value;
-  
-  if (metaAguaInput && parseFloat(metaAguaInput) >= 0) {
-    metas.agua = parseFloat(metaAguaInput);
-    localStorage.setItem('metaAgua', metas.agua);
-    mostrarNotificacao('✅ Meta de água atualizada!', 'success');
-  }
-  
-  if (metaEnergiaInput && parseFloat(metaEnergiaInput) >= 0) {
-    metas.energia = parseFloat(metaEnergiaInput);
-    localStorage.setItem('metaEnergia', metas.energia);
-    mostrarNotificacao('✅ Meta de energia atualizada!', 'success');
-  }
-  
-  atualizarProgressoMetas();
+    metas.agua = parseFloat(document.getElementById('metaAgua').value) || 0;
+    metas.energia = parseFloat(document.getElementById('metaEnergia').value) || 0;
+    setLocalData(DATA_KEYS.METAS_AGUA, metas.agua);
+    setLocalData(DATA_KEYS.METAS_ENERGIA, metas.energia);
+    atualizarProgressoMetas();
 }
 
 function atualizarProgressoMetas() {
-  carregarMetas();
+    carregarMetas(); 
 
-  // Calcular consumo do mês (últimos 30 registros ou soma dos últimos 6)
-  const aguaConsumoMes = historico
-    .filter(h => h.tipo === 'água')
-    .slice(-6)
-    .reduce((acc, h) => acc + parseFloat(h.consumo), 0);
-    
-  const energiaConsumoMes = historico
-    .filter(h => h.tipo === 'energia')
-    .slice(-6)
-    .reduce((acc, h) => acc + parseFloat(h.consumo), 0);
+    // Usar consumo recente (últimos 6 registros como simulação de "mês")
+    const aguaConsumoRecente = historico.filter(h => h.tipo === 'água').slice(-6).map(h => h.consumo).reduce((a, b) => a + b, 0);
+    const energiaConsumoRecente = historico.filter(h => h.tipo === 'energia').slice(-6).map(h => h.consumo).reduce((a, b) => a + b, 0);
 
-  // Progresso Água
-  const progressAgua = document.getElementById('progressAgua');
-  let percentAgua = metas.agua > 0 ? (aguaConsumoMes / metas.agua) * 100 : 0;
-  
-  const widthAgua = Math.min(100, percentAgua);
-  progressAgua.style.width = `${widthAgua}%`;
-  progressAgua.textContent = `${percentAgua.toFixed(1)}% (${aguaConsumoMes.toFixed(2)} / ${metas.agua.toFixed(2)} m³)`;
-  progressAgua.classList.toggle('over', percentAgua > 100);
+    // Água
+    const progressAgua = document.getElementById('progressAgua');
+    let percentAgua = (metas.agua > 0) ? (aguaConsumoRecente / metas.agua) * 100 : 0;
 
-  // Progresso Energia
-  const progressEnergia = document.getElementById('progressEnergia');
-  let percentEnergia = metas.energia > 0 ? (energiaConsumoMes / metas.energia) * 100 : 0;
-  
-  const widthEnergia = Math.min(100, percentEnergia);
-  progressEnergia.style.width = `${widthEnergia}%`;
-  progressEnergia.textContent = `${percentEnergia.toFixed(1)}% (${energiaConsumoMes.toFixed(2)} / ${metas.energia.toFixed(2)} kWh)`;
-  progressEnergia.classList.toggle('over', percentEnergia > 100);
+    progressAgua.style.width = `${Math.min(100, percentAgua).toFixed(0)}%`;
+    progressAgua.textContent = `${percentAgua.toFixed(1)}% (${aguaConsumoRecente.toFixed(2)} / ${metas.agua.toFixed(2)} m³)`;
+    progressAgua.classList.toggle('over', percentAgua > 100);
+
+    // Energia
+    const progressEnergia = document.getElementById('progressEnergia');
+    let percentEnergia = (metas.energia > 0) ? (energiaConsumoRecente / metas.energia) * 100 : 0;
+
+    progressEnergia.style.width = `${Math.min(100, percentEnergia).toFixed(0)}%`;
+    progressEnergia.textContent = `${percentEnergia.toFixed(1)}% (${energiaConsumoRecente.toFixed(2)} / ${metas.energia.toFixed(2)} kWh)`;
+    progressEnergia.classList.toggle('over', percentEnergia > 100);
 }
 
-// ========== COMPARAÇÃO ==========
+function verificarAlertas() {
+    const metaAgua = metas.agua || 10;
+    const metaEnergia = metas.energia || 150;
+    
+    if (totalAnteriorAgua > metaAgua * 0.9 && totalAnteriorAgua < metaAgua * 1.1) {
+      mostrarNotificacao(`Você atingiu ${((totalAnteriorAgua/metaAgua)*100).toFixed(0)}% da sua meta de água!`, 'warning');
+    }
+    if (totalAnteriorAgua >= metaAgua * 1.1) {
+      mostrarNotificacao(`🚨 Atenção! Você excedeu sua meta de água em ${(totalAnteriorAgua - metaAgua).toFixed(2)} m³!`, 'error');
+    }
+    
+    if (totalAnteriorEnergia > metaEnergia * 0.9 && totalAnteriorEnergia < metaEnergia * 1.1) {
+      mostrarNotificacao(`Você atingiu ${((totalAnteriorEnergia/metaEnergia)*100).toFixed(0)}% da sua meta de energia!`, 'warning');
+    }
+    if (totalAnteriorEnergia >= metaEnergia * 1.1) {
+      mostrarNotificacao(`🚨 Atenção! Você excedeu sua meta de energia em ${(totalAnteriorEnergia - metaEnergia).toFixed(2)} kWh!`, 'error');
+    }
+}
+
+
+// --- FUNÇÕES DE COMPARAÇÃO ---
+
 function atualizarComparacao() {
-  carregarMetas();
-  
-  // Simular média geral baseada nas metas
-  const mediaAguaSimulada = metas.agua * 1.1;
-  const mediaEnergiaSimulada = metas.energia * 0.95;
+    carregarMetas(); 
 
-  // Calcular consumo do mês atual
-  const aguaConsumoMes = historico
-    .filter(h => h.tipo === 'água')
-    .slice(-6)
-    .reduce((acc, h) => acc + parseFloat(h.consumo), 0);
+    // Consumo Recente (últimos 6)
+    const aguaConsumoRecente = historico.filter(h => h.tipo === 'água').slice(-6).map(h => h.consumo).reduce((a, b) => a + b, 0);
+    const energiaConsumoRecente = historico.filter(h => h.tipo === 'energia').slice(-6).map(h => h.consumo).reduce((a, b) => a + b, 0);
     
-  const energiaConsumoMes = historico
-    .filter(h => h.tipo === 'energia')
-    .slice(-6)
-    .reduce((acc, h) => acc + parseFloat(h.consumo), 0);
-
-  // Atualizar cards
-  document.getElementById('compSeuAgua').textContent = aguaConsumoMes.toFixed(2) + ' m³';
-  document.getElementById('compMediaAgua').textContent = mediaAguaSimulada.toFixed(2) + ' m³';
-  document.getElementById('compSeuEnergia').textContent = energiaConsumoMes.toFixed(2) + ' kWh';
-  document.getElementById('compMediaEnergia').textContent = mediaEnergiaSimulada.toFixed(2) + ' kWh';
-
-  // Análise detalhada
-  let analise = '';
-  
-  // Análise Água
-  const difAgua = ((aguaConsumoMes - mediaAguaSimulada) / mediaAguaSimulada) * 100;
-  if (aguaConsumoMes < mediaAguaSimulada * 0.9) {
-    analise += `💧 <strong>Excelente!</strong> Seu consumo de água está ${Math.abs(difAgua).toFixed(0)}% abaixo da média. Continue assim! `;
-  } else if (aguaConsumoMes > mediaAguaSimulada * 1.1) {
-    analise += `💧 <strong>Atenção!</strong> Seu consumo de água está ${difAgua.toFixed(0)}% acima da média. Considere economizar. `;
-  } else {
-    analise += `💧 Seu consumo de água está próximo da média geral. `;
-  }
-  
-  // Análise Energia
-  const difEnergia = ((energiaConsumoMes - mediaEnergiaSimulada) / mediaEnergiaSimulada) * 100;
-  if (energiaConsumoMes < mediaEnergiaSimulada * 0.9) {
-    analise += `<br><br>⚡ <strong>Parabéns!</strong> Seu consumo de energia está ${Math.abs(difEnergia).toFixed(0)}% abaixo da média. Ótimo trabalho! `;
-  } else if (energiaConsumoMes > mediaEnergiaSimulada * 1.1) {
-    analise += `<br><br>⚡ <strong>Alerta!</strong> Seu consumo de energia está ${difEnergia.toFixed(0)}% acima da média. Verifique aparelhos. `;
-  } else {
-    analise += `<br><br>⚡ Seu consumo de energia está alinhado com a média geral. `;
-  }
-  
-  // Dicas personalizadas
-  if (aguaConsumoMes > mediaAguaSimulada || energiaConsumoMes > mediaEnergiaSimulada) {
-    analise += `<br><br><strong>💡 Dicas:</strong><br>`;
-    if (aguaConsumoMes > mediaAguaSimulada) {
-      analise += `• Verifique vazamentos em torneiras e vasos sanitários<br>`;
-      analise += `• Reduza o tempo de banho<br>`;
+    // Média geral simulada (baseada na meta e com um pequeno desvio)
+    const mediaGeralAgua = metas.agua * 1.05; // 5% acima da meta como média "social"
+    const mediaGeralEnergia = metas.energia * 0.90; // 10% abaixo da meta como média "social"
+    
+    // Atualizar cards
+    document.getElementById('compSeuAgua').textContent = aguaConsumoRecente.toFixed(2) + ' m³';
+    document.getElementById('compMediaAgua').textContent = mediaGeralAgua.toFixed(2) + ' m³';
+    document.getElementById('compSeuEnergia').textContent = energiaConsumoRecente.toFixed(2) + ' kWh';
+    document.getElementById('compMediaEnergia').textContent = mediaGeralEnergia.toFixed(2) + ' kWh';
+    
+    // Análise
+    let analise = '';
+    
+    if (aguaConsumoRecente < mediaGeralAgua * 0.95) {
+      analise += '💧 Seu consumo de água está excelente, bem abaixo da média. Continue assim! ';
+    } else if (aguaConsumoRecente > mediaGeralAgua * 1.05) {
+      analise += '💧 Atenção! Seu consumo de água está significativamente acima da média. Considere medidas de economia. ';
+    } else {
+      analise += '💧 Seu consumo de água está próximo da média geral. ';
     }
-    if (energiaConsumoMes > mediaEnergiaSimulada) {
-      analise += `• Desligue aparelhos da tomada quando não usar<br>`;
-      analise += `• Troque lâmpadas por LED<br>`;
+    
+    if (energiaConsumoRecente < mediaGeralEnergia * 0.95) {
+      analise += '⚡ Seu consumo de energia é um modelo! Muito abaixo da média. ';
+    } else if (energiaConsumoRecente > mediaGeralEnergia * 1.05) {
+      analise += '⚡ Seu consumo de energia está alto em relação à média. Verifique aparelhos e hábitos. ';
+    } else {
+      analise += '⚡ Seu consumo de energia está alinhado com a média geral. ';
     }
-  }
-  
-  document.getElementById('analiseTexto').innerHTML = analise || "Configure suas metas e registre consumos para ver a análise comparativa.";
+    
+    document.getElementById('analiseTexto').textContent = analise.trim() || "Nenhum registro encontrado para comparação.";
 }
 
-// ========== BACKUP E RESTAURAÇÃO ==========
-function toggleBackupModal() {
-  const modal = document.getElementById('backupModal');
-  if (modal.style.display === 'none' || !modal.style.display) {
-    modal.style.display = 'flex';
-  } else {
-    modal.style.display = 'none';
-  }
+// --- INICIALIZAÇÃO E EVENT LISTENERS ---
+
+function setupEventListeners() {
+    document.getElementById('aguaForm').addEventListener('submit', handleFormSubmit);
+    document.getElementById('energiaForm').addEventListener('submit', handleFormSubmit);
+    // Adiciona o listener de input para recalcular o total ao digitar
+    document.getElementById('consumoAgua').addEventListener('input', () => atualizarTotal('agua'));
+    document.getElementById('consumoEnergia').addEventListener('input', () => atualizarTotal('energia'));
 }
 
-function exportarBackup() {
-  const backup = {
-    versao: '1.0',
-    dataBackup: new Date().toISOString(),
-    historico: historico,
-    metas: metas,
-    totais: {
-      agua: totalAnteriorAgua,
-      energia: totalAnteriorEnergia
-    },
-    configuracoes: {
-      tema: localStorage.getItem('theme') || 'light'
-    }
-  };
-  
-  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `backup_consumo_${new Date().toISOString().split('T')[0]}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  
-  mostrarNotificacao('✅ Backup criado com sucesso!', 'success');
+async function loadInitialData() {
+    loadTheme();
+    carregarMetas();
+    carregarHistorico();
+    await carregarTotais(); // Garante que totais e alerts sejam carregados
 }
 
-function importarBackup(file) {
-  if (!file) return;
-  
-  if (!file.name.endsWith('.json')) {
-    mostrarNotificacao('❌ Por favor, selecione um arquivo JSON válido.', 'error');
-    return;
-  }
-  
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const backup = JSON.parse(e.target.result);
-      
-      // Validar estrutura do backup
-      if (!backup.historico || !backup.metas || !backup.totais) {
-        throw new Error('Arquivo de backup inválido');
-      }
-      
-      // Confirmar importação
-      if (!confirm(`⚠️ Tem certeza que deseja restaurar o backup de ${new Date(backup.dataBackup).toLocaleString('pt-BR')}?\n\nIsso substituirá todos os seus dados atuais.`)) {
-        return;
-      }
-      
-      // Restaurar dados
-      historico = backup.historico || [];
-      metas = backup.metas || { agua: 10, energia: 150 };
-      totalAnteriorAgua = backup.totais?.agua || 0;
-      totalAnteriorEnergia = backup.totais?.energia || 0;
-      
-      // Salvar no localStorage
-      localStorage.setItem('historico', JSON.stringify(historico));
-      localStorage.setItem('metaAgua', metas.agua);
-      localStorage.setItem('metaEnergia', metas.energia);
-      localStorage.setItem('totalAnteriorAgua', totalAnteriorAgua);
-      localStorage.setItem('totalAnteriorEnergia', totalAnteriorEnergia);
-      
-      if (backup.configuracoes?.tema) {
-        localStorage.setItem('theme', backup.configuracoes.tema);
-      }
-      
-      mostrarNotificacao('✅ Backup restaurado com sucesso! A página será recarregada.', 'success');
-      
-      setTimeout(() => {
-        location.reload();
-      }, 2000);
-      
-    } catch (err) {
-      console.error('Erro ao importar backup:', err);
-      mostrarNotificacao('❌ Erro ao importar backup. Verifique se o arquivo é válido.', 'error');
-    }
-  };
-  reader.readAsText(file);
-  
-  // Limpar input
-  document.getElementById('backupFile').value = '';
-}
-
-// ========== INICIALIZAÇÃO ==========
-function init() {
-  // Carregar tema
-  const theme = localStorage.getItem('theme');
-  if (theme === 'dark') {
-    document.body.classList.add('dark-mode');
-    document.querySelector('.theme-toggle').textContent = '☀️';
-  }
-  
-  // Carregar dados
-  carregarHistorico();
-  carregarTotais();
-  carregarMetas();
-  
-  // Verificar status de conexão
-  atualizarStatusConexao();
-  
-  // Configurar aba inicial
-  showFormTab('agua');
-  
-  // Adicionar listeners para atualização de total (com debounce)
-  document.getElementById('consumoAgua').addEventListener('input', () => atualizarTotalDebounced('agua'));
-  document.getElementById('consumoEnergia').addEventListener('input', () => atualizarTotalDebounced('energia'));
-  
-  // Fechar modal ao clicar fora
-  document.getElementById('backupModal').addEventListener('click', (e) => {
-    if (e.target.id === 'backupModal') {
-      toggleBackupModal();
-    }
-  });
-  
-  console.log('✅ Sistema iniciado com sucesso!');
-  console.log(`📊 ${historico.length} registros carregados`);
-  console.log(`🎯 Metas: Água ${metas.agua} m³ | Energia ${metas.energia} kWh`);
-}
-
-// Inicializar quando o DOM estiver pronto
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
-
-// Service Worker básico para PWA (opcional)
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').then(
-      (registration) => console.log('✅ Service Worker registrado'),
-      (err) => console.log('❌ Service Worker falhou:', err)
-    ).catch(() => {
-      // Ignora se não houver service worker
-    });
-  });
-}
+window.onload = function() {
+    loadInitialData();
+    setupEventListeners();
+    // Configurar aba inicial de registro de Água como ativa
+    showFormTab('agua', document.querySelector('.form-card > div:first-child .tab-button.active'));
+};
 </script>
 </body>
 </html>
