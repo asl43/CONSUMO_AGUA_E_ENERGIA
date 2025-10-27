@@ -900,6 +900,12 @@
           <button class="btn btn-success" onclick="exportarCSV()">📥 Exportar CSV</button>
           <button class="btn btn-danger" onclick="exportarPDF()">📄 Exportar PDF</button>
       </div>
+      
+      <div style="margin-top: 10px;">
+        <button class="btn btn-danger" onclick="limparTodosRegistros()" style="width: 100%;">
+            🗑️ Limpar Todos os Registros Locais
+        </button>
+      </div>
       <div class="filter-section" style="margin-top: 20px;">
         <h3>💾 Backup & Restauração Local</h3>
         <p style="font-size: 0.9em; margin-bottom: 10px;">Salve ou restaure o histórico local (JSON) para evitar perda de dados no navegador.</p>
@@ -1047,28 +1053,28 @@ const DATA_KEYS = {
     METAS_AGUA: 'metaAgua',
     METAS_ENERGIA: 'metaEnergia',
     THEME: 'theme',
-    TARIFAS: 'tarifas' // <<< NOVO: Chave de Tarifas
+    TARIFAS: 'tarifas' 
 };
 
 let totalAnteriorAgua = 0;
 let totalAnteriorEnergia = 0;
 let historico = [];
 let metas = { agua: 10, energia: 150 };
-// <<< OBJETO DE TARIFAS MAIS DETALHADO (Valores iniciais baseados nas contas fornecidas)
+// OBJETO DE TARIFAS MAIS DETALHADO (Valores iniciais baseados nas contas fornecidas)
 let tarifas = {
-    // ÁGUA (Baseado na primeira imagem)
-    aguaFaixaMinima: 10.00,        // Faixa de consumo que se encaixa no valor fixo (m³)
-    aguaFixa: 25.00,               // Tarifa mínima fixa (R$)
-    aguaExcedente: 6.50,           // Tarifa por m³ após a faixa mínima (R$)
-    aguaParcelamento: 29.69,       // Valor fixo de parcelamentos na conta de água (R$)
-    aguaMultas: 5.96,              // Valor fixo de multas/juros na conta de água (R$)
+    // ÁGUA 
+    aguaFaixaMinima: 10.00,        
+    aguaFixa: 25.00,               
+    aguaExcedente: 6.50,           
+    aguaParcelamento: 29.69,       
+    aguaMultas: 5.96,              
     
-    // ENERGIA (Baseado na segunda imagem)
-    energiaKWh: 0.92181,           // Tarifa por kWh (TE + TUSD) (R$)
-    energiaBandeira: 0.10,         // Custo por kWh da Bandeira (R$ - Um valor simulado, ajuste para a sua bandeira)
-    energiaFixaCOSIP: 53.33,       // Custo Fixo de Iluminação Pública (COSIP/CIP) (R$)
-    energiaParcelamento: 266.35,   // Valor fixo de parcelamentos na conta de energia (R$)
-    energiaMultas: 3.42,           // Valor fixo de multas/juros na conta de energia (R$)
+    // ENERGIA 
+    energiaKWh: 0.92181,           
+    energiaBandeira: 0.10,         
+    energiaFixaCOSIP: 53.33,       
+    energiaParcelamento: 266.35,   
+    energiaMultas: 3.42,           
 };
 let chartInstance = null;
 let pieChartInstance = null;
@@ -1189,7 +1195,7 @@ function showMainTab(tabId) {
   } else if (tabId === 'comparacao') {
     carregarHistorico();
     atualizarComparacao();
-  } else if (tabId === 'custo') { // NOVO: Aba de custo
+  } else if (tabId === 'custo') { 
     carregarTarifas();
   }
 }
@@ -1221,7 +1227,7 @@ async function carregarTotais() {
         console.warn("Erro ao carregar totais do servidor. Usando dados locais.", err);
     }
     
-    // NOVO: Atualiza o display de leitura anterior
+    // Atualiza o display de leitura anterior
     document.getElementById("leituraAnteriorAguaDisplay").value = totalAnteriorAgua.toFixed(2);
     document.getElementById("leituraAnteriorEnergiaDisplay").value = totalAnteriorEnergia.toFixed(2);
 
@@ -1292,11 +1298,11 @@ function definirInicio(tipo, novoValor) {
       if (tipo === 'agua') {
         totalAnteriorAgua = novoValor;
         setLocalData(DATA_KEYS.TOTAL_AGUA, totalAnteriorAgua);
-        document.getElementById("leituraAnteriorAguaDisplay").value = valorFormatado; // NOVO: Atualiza display anterior
+        document.getElementById("leituraAnteriorAguaDisplay").value = valorFormatado; 
       } else {
         totalAnteriorEnergia = novoValor;
         setLocalData(DATA_KEYS.TOTAL_ENERGIA, totalAnteriorEnergia);
-        document.getElementById("leituraAnteriorEnergiaDisplay").value = valorFormatado; // NOVO: Atualiza display anterior
+        document.getElementById("leituraAnteriorEnergiaDisplay").value = valorFormatado; 
       }
       
       // Atualiza os inputs e displays principais
@@ -1355,7 +1361,7 @@ async function handleFormSubmit(e) {
             .then(() => console.log('Dados enviados ao Sheets com sucesso'))
             .catch(err => console.error('Erro ao enviar dados ao Sheets (Tentativa assíncrona):', err));
 
-        // Salva nome e matrícula para auto-preenchimento (NOVO)
+        // Salva nome e matrícula para auto-preenchimento
         setLocalData('lastNome', nome);
         setLocalData('lastMatricula', matricula);
         
@@ -1588,7 +1594,7 @@ function criarGraficos(dataInicio, dataFim) {
     
     document.getElementById('economiaAgua').textContent = economiaTexto;
     
-    // NOVO: Cálculo de Custo (AGORA BASEADO NAS TARIFAS EDITÁVEIS)
+    // Cálculo de Custo (AGORA BASEADO NAS TARIFAS EDITÁVEIS)
     let custoAgua = 0; 
     let custoEnergia = 0;
 
@@ -1661,56 +1667,86 @@ function filtrarHistorico() {
   `).join('');
 }
 
-// *** AVISO: Edição/Exclusão Local é perigosa para a integridade do Total Acumulado. Aconselha-se desabilitar (como abaixo) ou avisar o usuário. ***
 function abrirModalEdicao(id) {
-    // Mantido desabilitado para integridade, mas o código está aqui se for necessário ativar
+    // Mantido desabilitado para integridade do Total Acumulado
     mostrarNotificacao('A edição de registros locais foi desabilitada para garantir a integridade do total acumulado. Edite apenas no Google Sheets.', 'error');
-    // ... código de edição ...
 }
 
+/**
+ * Função para excluir um registro localmente e recalcular os totais acumulados.
+ * @param {string} id - O ID do registro a ser excluído.
+ */
 function excluirRegistro(id) {
     const registroIndex = historico.findIndex(item => item.id === id);
     const registro = historico[registroIndex];
 
     if (!registro) return;
 
-    // Verifica se o registro excluído é o último. Se não for, a exclusão causa inconsistência no campo 'total'.
     const isLast = registroIndex === 0;
 
     if (isLast) {
       if (!confirm("Tem certeza que deseja excluir o ÚLTIMO registro localmente? Isso é seguro, mas você precisará excluir o registro correspondente no Google Sheets.")) return;
     } else {
-      if (!confirm(`⚠️ ATENÇÃO: Você está tentando excluir um registro antigo! Isso causará INCONSISTÊNCIA nos campos 'Total' dos registros posteriores (consumo calculado). Prossiga com cautela e corrija manualmente o próximo 'Total Inicial'. Tem certeza?`)) return;
+      // Aviso reforçado para exclusão de registros antigos
+      if (!confirm(`⚠️ ATENÇÃO: Você está tentando excluir um registro antigo! Isso causará INCONSISTÊNCIA nos campos 'Total' dos registros posteriores e no 'Total Acumulado' atual. Você precisará redefinir o 'Total Inicial' manualmente. Deseja prosseguir com a exclusão local?`)) return;
     }
     
+    // 1. Remove o registro
     historico = historico.filter(item => item.id !== id);
     setLocalData(DATA_KEYS.HISTORICO, historico);
     
-    // Se o último registro foi excluído, o total anterior deve ser o penúltimo registro
-    if (isLast && historico.length > 0) {
-        const penultimo = historico[0];
-        if (registro.tipo === 'agua') {
-            totalAnteriorAgua = penultimo.total;
-            setLocalData(DATA_KEYS.TOTAL_AGUA, totalAnteriorAgua);
-        } else {
-            totalAnteriorEnergia = penultimo.total;
-            setLocalData(DATA_KEYS.TOTAL_ENERGIA, totalAnteriorEnergia);
-        }
-    } else if (historico.length === 0) {
-        // Se a lista ficar vazia, zera o total
-        totalAnteriorAgua = 0;
-        totalAnteriorEnergia = 0;
-        setLocalData(DATA_KEYS.TOTAL_AGUA, 0);
-        setLocalData(DATA_KEYS.TOTAL_ENERGIA, 0);
+    // 2. Recalcula o Total Acumulado (Total Anterior)
+    if (registro.tipo === 'agua') {
+        // Encontra o novo registro mais recente de água (ou 0 se não houver mais)
+        const penultimoAgua = historico.filter(h => h.tipo === 'agua')[0];
+        totalAnteriorAgua = penultimoAgua ? penultimoAgua.total : 0;
+        setLocalData(DATA_KEYS.TOTAL_AGUA, totalAnteriorAgua);
+    } else {
+        // Encontra o novo registro mais recente de energia (ou 0 se não houver mais)
+        const penultimoEnergia = historico.filter(h => h.tipo === 'energia')[0];
+        totalAnteriorEnergia = penultimoEnergia ? penultimoEnergia.total : 0;
+        setLocalData(DATA_KEYS.TOTAL_ENERGIA, totalAnteriorEnergia);
     }
     
+    // 3. Atualiza a interface
     carregarTotais(); 
     filtrarHistorico();
     aplicarFiltroDashboard();
-    mostrarNotificacao('Registro excluído localmente.', 'warning');
+    mostrarNotificacao('Registro excluído localmente. O Total Acumulado foi recalculado com base no registro anterior.', 'warning');
 }
 
-// NOVO: Funções de Backup/Restauração JSON
+/**
+ * NOVO: Função para limpar todos os registros do histórico local e zerar os totais.
+ */
+function limparTodosRegistros() {
+    if (!confirm("⚠️ CONFIRMAÇÃO FINAL: Tem certeza que deseja APAGAR TODOS os registros (Água e Energia) do histórico local e ZERAR os Totais Acumulados? Esta ação é irreversível localmente.")) return;
+    
+    // Limpa o histórico local
+    historico = [];
+    setLocalData(DATA_KEYS.HISTORICO, historico);
+    
+    // Zera os totais acumulados
+    totalAnteriorAgua = 0;
+    totalAnteriorEnergia = 0;
+    setLocalData(DATA_KEYS.TOTAL_AGUA, 0);
+    setLocalData(DATA_KEYS.TOTAL_ENERGIA, 0);
+    
+    // Recarrega a interface
+    carregarTotais(); 
+    filtrarHistorico();
+    aplicarFiltroDashboard();
+
+    // Limpa nome/matrícula (opcional)
+    setLocalData('lastNome', '');
+    setLocalData('lastMatricula', '');
+    document.querySelectorAll('input[name="nome"]').forEach(input => input.value = '');
+    document.querySelectorAll('input[name="matricula"]').forEach(input => input.value = '');
+
+    mostrarNotificacao('✅ Todos os registros locais foram apagados. Totais acumulados zerados.', 'success');
+}
+// FIM DAS FUNÇÕES DE EXCLUSÃO/LIMPEZA
+
+
 function exportarJSON() {
     const data = getLocalData(DATA_KEYS.HISTORICO, []);
     const jsonStr = JSON.stringify(data, null, 2);
@@ -1762,7 +1798,6 @@ function importarJSON(event) {
     // Limpa o input file para que o evento 'change' dispare novamente se o mesmo arquivo for selecionado
     event.target.value = '';
 }
-// FIM NOVO
 
 function exportarCSV() {
     const csv = ['"Data/Hora","Tipo","Nome","Consumo","Total"'];
@@ -1844,8 +1879,7 @@ function atualizarProgressoMetas() {
 }
 
 function verificarAlertas() {
-    // Mantido, mas o alerta de meta excedida agora está no dashboard/progresso
-    // Esta função pode ser expandida para outros alertas futuros.
+    // Função para futuros alertas
 }
 
 function atualizarComparacao() {
@@ -2013,7 +2047,7 @@ async function loadInitialData() {
     carregarTarifas(); // Carrega as tarifas antes de calcular totais para o dashboard
     await carregarTotais(); 
 
-    // NOVO: Preenche os campos de Nome/Matrícula
+    // Preenche os campos de Nome/Matrícula
     const lastNome = getLocalData('lastNome', '');
     const lastMatricula = getLocalData('lastMatricula', '');
     document.querySelectorAll('input[name="nome"]').forEach(input => input.value = lastNome);
