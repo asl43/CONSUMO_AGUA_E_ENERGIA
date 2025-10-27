@@ -588,6 +588,35 @@
     margin-bottom: 20px;
     align-items: end;
   }
+  
+  /* NOVO: Estilo para resultado de custo */
+  .result-card {
+    background: #fff8e1;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: left;
+    margin-top: 15px;
+    border: 1px solid #ffcc80;
+  }
+
+  .result-card p {
+    margin-bottom: 5px;
+    font-size: 0.95em;
+  }
+
+  .result-card strong {
+    font-weight: 700;
+  }
+
+  .result-card .total-cost {
+    font-size: 1.4em; 
+    font-weight: 700; 
+    color: var(--danger);
+    display: block;
+    border-top: 1px dashed #ccc; 
+    padding-top: 5px; 
+    margin-top: 10px;
+  }
 
   @media (max-width: 768px) {
     body {
@@ -611,6 +640,9 @@
       height: 250px;
     }
     .dashboard-filters {
+        grid-template-columns: 1fr;
+    }
+    .filter-row {
         grid-template-columns: 1fr;
     }
   }
@@ -888,14 +920,68 @@
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
         <h2>📋 Histórico de Registros (Dados Locais)</h2>
       </div>
-      <div class="form-group">
-        <label>Filtrar por Tipo</label>
-        <select id="filtroTipo" onchange="filtrarHistorico()">
-          <option value="todos">Todos</option>
-          <option value="agua">Água</option>
-          <option value="energia">Energia</option>
-        </select>
+
+      <div class="filter-section" style="margin-top: 5px;">
+          <h3>🔎 Filtro de Visualização</h3>
+          <div class="filter-row">
+              <div class="form-group" style="margin-bottom: 0;">
+                  <label for="filtroPeriodo">Filtrar por Período</label>
+                  <select id="filtroPeriodo" onchange="aplicarFiltrosHistorico()">
+                      <option value="todos">Todos os Registros</option>
+                      <option value="hoje">Dia Atual</option>
+                      <option value="7dias">Últimos 7 Dias</option>
+                      <option value="30dias">Últimos 30 Dias</option>
+                      <option value="custom">Personalizado (Datas abaixo)</option>
+                  </select>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                  <label for="filtroDataInicio">Data Início (Personalizado)</label>
+                  <input type="date" id="filtroDataInicio" onchange="aplicarFiltrosHistorico()">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                  <label for="filtroDataFim">Data Fim (Personalizado)</label>
+                  <input type="date" id="filtroDataFim" onchange="aplicarFiltrosHistorico()">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                  <label for="filtroTipo">Filtrar por Tipo</label>
+                  <select id="filtroTipo" onchange="aplicarFiltrosHistorico()">
+                      <option value="todos">Todos</option>
+                      <option value="agua">Água</option>
+                      <option value="energia">Energia</option>
+                  </select>
+              </div>
+          </div>
+          <div class="button-group" style="margin-top: 15px;">
+              <button class="btn btn-secondary" onclick="aplicarFiltrosHistorico()">
+                  ✅ Aplicar Filtros
+              </button>
+          </div>
       </div>
+      <div class="filter-section" style="margin-top: 20px;">
+          <h3>💰 Cálculo de Custo Detalhado por Período</h3>
+          <div class="filter-row">
+              <div class="form-group" style="margin-bottom: 0;">
+                  <label for="filtroCustoMesAno">Período de Referência (Consumo e Tarifa)</label>
+                  <input type="month" id="filtroCustoMesAno" required>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                  <label for="filtroCustoTipo">Tipo de Consumo</label>
+                  <select id="filtroCustoTipo" required>
+                      <option value="agua">💧 Água</option>
+                      <option value="energia">⚡ Energia</option>
+                  </select>
+              </div>
+          </div>
+          <div class="button-group" style="margin-top: 15px;">
+              <button class="btn btn-primary" onclick="calcularCustoPorPeriodo()">
+                  💲 Calcular Custo para o Período
+              </button>
+          </div>
+          <div class="result-card" id="resCustoDetalhe">
+              <p>Selecione um mês e tipo de consumo acima e clique em **Calcular Custo**.</p>
+          </div>
+      </div>
+      
       <div class="export-buttons">
           <button class="btn btn-success" onclick="exportarCSV()">📥 Exportar CSV</button>
           <button class="btn btn-danger" onclick="exportarPDF()">📄 Exportar PDF</button>
@@ -994,10 +1080,15 @@
   <div id="custo" class="main-content">
     <div class="form-card">
       <h2 style="margin-bottom: 20px;">💰 Estrutura de Custo e Tarifas</h2>
-      <div style="margin-bottom: 20px;">
-        <p style="font-size: 0.9em; margin-bottom: 10px;">As tarifas e taxas abaixo são usadas para calcular o "Custo Estimado" no Dashboard. Edite para refletir suas contas reais.</p>
+
+      <div class="filter-section">
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label for="selectTarifaMesAno">Visualizar Tarifas para o Mês/Ano:</label>
+            <input type="month" id="selectTarifaMesAno" onchange="atualizarDisplayTarifas(this.value)">
+        </div>
+        <p style="font-size: 0.9em; margin-bottom: 10px;">As tarifas exibidas são usadas para calcular o "Custo Estimado" do período de referência no Dashboard/Histórico.</p>
         <button class="btn btn-primary" onclick="abrirModalEdicaoTarifas()">
-          ✏️ Editar Tarifas e Taxas
+          ✏️ Editar/Salvar Tarifas para o Mês Selecionado
         </button>
       </div>
 
@@ -1053,15 +1144,21 @@ const DATA_KEYS = {
     METAS_AGUA: 'metaAgua',
     METAS_ENERGIA: 'metaEnergia',
     THEME: 'theme',
-    TARIFAS: 'tarifas' 
+    TARIFAS: 'tarifasMensais' 
 };
 
 let totalAnteriorAgua = 0;
 let totalAnteriorEnergia = 0;
 let historico = [];
 let metas = { agua: 10, energia: 150 };
-// OBJETO DE TARIFAS MAIS DETALHADO (Valores iniciais baseados nas contas fornecidas)
-let tarifas = {
+/**
+ * Armazena as tarifas por 'YYYY-MM'. Ex: tarifas['2025-10']
+ * @type {Object<string, Object>}
+ */
+let tarifasMensais = {}; 
+
+// Valores iniciais padrão (usados para preencher o formulário se não houver um mês salvo)
+const DEFAULT_TARIFFS = {
     // ÁGUA 
     aguaFaixaMinima: 10.00,        
     aguaFixa: 25.00,               
@@ -1076,6 +1173,7 @@ let tarifas = {
     energiaParcelamento: 266.35,   
     energiaMultas: 3.42,           
 };
+
 let chartInstance = null;
 let pieChartInstance = null;
 
@@ -1131,6 +1229,20 @@ function mostrarNotificacao(mensagem, tipo = 'warning') {
 
 // Converte a data do formato Date para string AAAA-MM-DD
 const formatDateToInput = (date) => date.toISOString().split('T')[0];
+// Converte a data do formato Date para string AAAA-MM
+const formatMonthToInput = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+// Obtém o primeiro dia do mês/ano (AAAA-MM) como objeto Date
+const getFirstDayOfMonth = (monthYear) => {
+    const [year, month] = monthYear.split('-');
+    return new Date(year, month - 1, 1);
+};
+// Obtém o último dia do mês/ano (AAAA-MM) como objeto Date
+const getLastDayOfMonth = (monthYear) => {
+    const [year, month] = monthYear.split('-');
+    const lastDay = new Date(year, month, 0); // Dia 0 do próximo mês é o último dia do mês atual
+    lastDay.setHours(23, 59, 59, 999);
+    return lastDay;
+};
 
 // --- FUNÇÕES DE TEMA, MODAL, NAVEGAÇÃO, TOTAIS ---
 
@@ -1188,7 +1300,7 @@ function showMainTab(tabId) {
     aplicarFiltroDashboard(); 
   } else if (tabId === 'historico') {
     carregarHistorico();
-    filtrarHistorico();
+    aplicarFiltrosHistorico(); 
   } else if (tabId === 'metas') {
     carregarMetas(); 
     atualizarProgressoMetas();
@@ -1197,6 +1309,10 @@ function showMainTab(tabId) {
     atualizarComparacao();
   } else if (tabId === 'custo') { 
     carregarTarifas();
+    // Garante que o input de seleção na aba Custo mostre o mês atual
+    const mesAnoAtual = formatMonthToInput(new Date());
+    document.getElementById('selectTarifaMesAno').value = mesAnoAtual;
+    atualizarDisplayTarifas(mesAnoAtual);
   }
 }
 
@@ -1464,9 +1580,94 @@ function aplicarFiltroDashboard() {
     criarGraficos(inicio, fim);
 }
 
+/**
+ * Retorna as tarifas para um mês/ano específico ou as tarifas padrão se não existirem.
+ * @param {string} monthYear - Mês e ano no formato 'YYYY-MM'.
+ * @returns {object} O objeto de tarifas para o mês ou o padrão.
+ */
+function getTarifasParaMes(monthYear) {
+    return tarifasMensais[monthYear] || DEFAULT_TARIFFS;
+}
+
+/**
+ * Função centralizada para cálculo de custo.
+ * @param {number} aguaConsumo - Consumo de água em m³.
+ * @param {number} energiaConsumo - Consumo de energia em kWh.
+ * @param {string} monthYear - Mês de referência no formato 'YYYY-MM'.
+ * @returns {object} Objeto com os custos detalhados e total.
+ */
+function calcularCusto(aguaConsumo, energiaConsumo, monthYear) {
+    const tarifas = getTarifasParaMes(monthYear);
+    
+    if (!tarifas || !tarifas.aguaFixa) {
+        // Se as tarifas não forem as padrão, avisar que está usando as padrão
+        if (monthYear && !tarifasMensais[monthYear]) {
+             console.warn(`Tarifas para ${monthYear} não encontradas. Usando Tarifas Padrão.`);
+        }
+    }
+    
+    let custoAgua = 0; 
+    let custoEnergia = 0;
+    
+    // Detalhes para a nova exibição (Histórico)
+    let detalhesAgua = {
+        consumo: aguaConsumo,
+        tarifaFixa: tarifas.aguaFixa,
+        faixaMinima: tarifas.aguaFaixaMinima,
+        custoExcedente: 0,
+        excedente: 0,
+        tarifaExcedente: tarifas.aguaExcedente,
+        taxas: tarifas.aguaParcelamento + tarifas.aguaMultas,
+        total: 0
+    };
+    let detalhesEnergia = {
+        consumo: energiaConsumo,
+        tarifaKWh: tarifas.energiaKWh,
+        tarifaBandeira: tarifas.energiaBandeira,
+        custoKWh: 0,
+        custoBandeira: 0,
+        taxaFixaCOSIP: tarifas.energiaFixaCOSIP,
+        taxas: tarifas.energiaParcelamento + tarifas.energiaMultas,
+        total: 0
+    };
+
+    // LÓGICA DE CÁLCULO DA CONTA DE ÁGUA
+    if (aguaConsumo <= tarifas.aguaFaixaMinima) {
+        custoAgua = tarifas.aguaFixa; // Tarifa fixa cobre a faixa mínima
+    } else {
+        detalhesAgua.excedente = aguaConsumo - tarifas.aguaFaixaMinima;
+        detalhesAgua.custoExcedente = detalhesAgua.excedente * tarifas.aguaExcedente;
+        custoAgua = tarifas.aguaFixa + detalhesAgua.custoExcedente;
+    }
+    custoAgua += detalhesAgua.taxas; // Adiciona taxas fixas
+    detalhesAgua.total = custoAgua;
+    
+    // LÓGICA DE CÁLCULO DA CONTA DE ENERGIA
+    detalhesEnergia.custoKWh = energiaConsumo * tarifas.energiaKWh;
+    detalhesEnergia.custoBandeira = energiaConsumo * tarifas.energiaBandeira;
+    custoEnergia = detalhesEnergia.custoKWh + detalhesEnergia.custoBandeira;
+    
+    custoEnergia += detalhesEnergia.taxaFixaCOSIP + detalhesEnergia.taxas; // Adiciona taxas fixas
+    detalhesEnergia.total = custoEnergia;
+    
+    const custoTotal = custoAgua + custoEnergia;
+    
+    return {
+        agua: custoAgua,
+        energia: custoEnergia,
+        total: custoTotal,
+        detalhesAgua: detalhesAgua,
+        detalhesEnergia: detalhesEnergia
+    };
+}
+
 function criarGraficos(dataInicio, dataFim) {
     carregarHistorico(); 
-    carregarTarifas(); // Garante que as tarifas estão carregadas para o cálculo de custo
+    carregarTarifas(); 
+    
+    // Descobre o Mês de Referência para o cálculo de custo (usa o mês do dataFim)
+    const mesReferencia = formatMonthToInput(dataFim);
+
     const agregacao = document.getElementById('agregacao').value; 
     const dadosFiltrados = filtrarDadosPorData(historico, dataInicio, dataFim);
     
@@ -1594,33 +1795,10 @@ function criarGraficos(dataInicio, dataFim) {
     
     document.getElementById('economiaAgua').textContent = economiaTexto;
     
-    // Cálculo de Custo (AGORA BASEADO NAS TARIFAS EDITÁVEIS)
-    let custoAgua = 0; 
-    let custoEnergia = 0;
-
-    // LÓGICA DE CÁLCULO DA CONTA DE ÁGUA (Mínimo + Excedente + Taxas Fixas)
-    if (aguaConsumoPeriodo <= tarifas.aguaFaixaMinima) {
-        custoAgua = tarifas.aguaFixa;
-    } else {
-        const excedenteAgua = aguaConsumoPeriodo - tarifas.aguaFaixaMinima;
-        // Paga a Tarifa Fixa (que cobre a faixa mínima) + o excedente
-        custoAgua = tarifas.aguaFixa + (excedenteAgua * tarifas.aguaExcedente);
-    }
-    // Adiciona taxas fixas (Parcelamento, Multas)
-    custoAgua += tarifas.aguaParcelamento + tarifas.aguaMultas;
+    // CÁLCULO DE CUSTO: Usando o mês de referência
+    const custo = calcularCusto(aguaConsumoPeriodo, energiaConsumoPeriodo, mesReferencia);
     
-    // LÓGICA DE CÁLCULO DA CONTA DE ENERGIA (kWh + Bandeira + Taxas Fixas)
-    const custoKWhBase = energiaConsumoPeriodo * tarifas.energiaKWh;
-    const custoKWhBandeira = energiaConsumoPeriodo * tarifas.energiaBandeira;
-
-    custoEnergia = custoKWhBase + custoKWhBandeira;
-    
-    // Adiciona taxas fixas (COSIP, Parcelamento, Multas)
-    custoEnergia += tarifas.energiaFixaCOSIP + tarifas.energiaParcelamento + tarifas.energiaMultas;
-    
-    const custoTotal = custoAgua + custoEnergia;
-    
-    document.getElementById('custoTotal').textContent = currencyFormatter.format(custoTotal);
+    document.getElementById('custoTotal').textContent = currencyFormatter.format(custo.total);
 }
 
 // --- FUNÇÕES DE HISTÓRICO, METAS, COMPARAÇÃO ---
@@ -1634,17 +1812,68 @@ function carregarHistorico() {
   historico.sort((a, b) => new Date(b.data) - new Date(a.data));
 }
 
-function filtrarHistorico() {
-  const filtro = document.getElementById('filtroTipo').value;
-  const tbody = document.getElementById('historicoBody');
-  let dadosFiltrados = historico;
+/**
+ * Função principal para aplicar todos os filtros (Tipo e Período) ao histórico e renderizar a tabela.
+ */
+function aplicarFiltrosHistorico() {
+  carregarHistorico(); 
 
-  if (filtro !== 'todos') {
-    dadosFiltrados = historico.filter(h => h.tipo === filtro);
+  const filtroTipo = document.getElementById('filtroTipo').value;
+  const filtroPeriodo = document.getElementById('filtroPeriodo').value;
+  const tbody = document.getElementById('historicoBody');
+  
+  // 1. Definir o período de filtro
+  let dadosFiltrados = null;
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
+  let dataInicioFiltro = null;
+  let dataFimFiltro = new Date(); 
+  dataFimFiltro.setHours(23, 59, 59, 999);
+
+  switch (filtroPeriodo) {
+      case 'hoje':
+          dataInicioFiltro = new Date(hoje);
+          break;
+      case '7dias':
+          dataInicioFiltro = new Date(hoje);
+          dataInicioFiltro.setDate(hoje.getDate() - 6); 
+          break;
+      case '30dias':
+          dataInicioFiltro = new Date(hoje);
+          dataInicioFiltro.setDate(hoje.getDate() - 29); 
+          break;
+      case 'custom':
+          const inicioStr = document.getElementById('filtroDataInicio').value;
+          const fimStr = document.getElementById('filtroDataFim').value;
+          if (inicioStr && fimStr) {
+              dataInicioFiltro = new Date(inicioStr);
+              dataFimFiltro = new Date(fimStr);
+              dataFimFiltro.setHours(23, 59, 59, 999);
+          } else {
+              mostrarNotificacao('Por favor, defina a Data Início e Data Fim para o filtro personalizado.', 'warning');
+              dadosFiltrados = []; // Reseta se não houver datas
+          }
+          break;
+      case 'todos':
+      default:
+          dadosFiltrados = historico;
+          break;
+  }
+  
+  if (dataInicioFiltro && filtroPeriodo !== 'todos') {
+      // Usar a função de filtro de data existente
+      dadosFiltrados = filtrarDadosPorData(historico, dataInicioFiltro, dataFimFiltro);
   }
 
-  if (dadosFiltrados.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Nenhum registro encontrado</td></tr>';
+  // 2. Filtrar por Tipo
+  if (filtroTipo !== 'todos' && dadosFiltrados) {
+    dadosFiltrados = dadosFiltrados.filter(h => h.tipo === filtroTipo);
+  }
+
+  // 3. Renderizar a Tabela
+  if (!dadosFiltrados || dadosFiltrados.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Nenhum registro encontrado para o filtro selecionado.</td></tr>';
     return;
   }
 
@@ -1666,6 +1895,7 @@ function filtrarHistorico() {
     </tr>
   `).join('');
 }
+
 
 function abrirModalEdicao(id) {
     // Mantido desabilitado para integridade do Total Acumulado
@@ -1710,13 +1940,13 @@ function excluirRegistro(id) {
     
     // 3. Atualiza a interface
     carregarTotais(); 
-    filtrarHistorico();
+    aplicarFiltrosHistorico();
     aplicarFiltroDashboard();
     mostrarNotificacao('Registro excluído localmente. O Total Acumulado foi recalculado com base no registro anterior.', 'warning');
 }
 
 /**
- * NOVO: Função para limpar todos os registros do histórico local e zerar os totais.
+ * Função para limpar todos os registros do histórico local e zerar os totais.
  */
 function limparTodosRegistros() {
     if (!confirm("⚠️ CONFIRMAÇÃO FINAL: Tem certeza que deseja APAGAR TODOS os registros (Água e Energia) do histórico local e ZERAR os Totais Acumulados? Esta ação é irreversível localmente.")) return;
@@ -1733,7 +1963,7 @@ function limparTodosRegistros() {
     
     // Recarrega a interface
     carregarTotais(); 
-    filtrarHistorico();
+    aplicarFiltrosHistorico();
     aplicarFiltroDashboard();
 
     // Limpa nome/matrícula (opcional)
@@ -1748,7 +1978,14 @@ function limparTodosRegistros() {
 
 
 function exportarJSON() {
-    const data = getLocalData(DATA_KEYS.HISTORICO, []);
+    const data = {
+        historico: getLocalData(DATA_KEYS.HISTORICO, []),
+        tarifas: getLocalData(DATA_KEYS.TARIFAS, {}),
+        totais: {
+            agua: totalAnteriorAgua,
+            energia: totalAnteriorEnergia
+        }
+    };
     const jsonStr = JSON.stringify(data, null, 2);
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const link = document.createElement("a");
@@ -1767,28 +2004,39 @@ function importarJSON(event) {
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
-            const importedData = JSON.parse(e.target.result);
-            if (!Array.isArray(importedData)) {
-                throw new Error("Formato JSON inválido. Esperado um array.");
-            }
+            const imported = JSON.parse(e.target.result);
             
-            // Revalida/limpa os dados importados (garante a estrutura mínima)
-            const cleanedData = importedData.filter(item => item.id && item.data && item.tipo && item.consumo && item.total);
-            if (cleanedData.length === 0 && importedData.length > 0) {
-                 mostrarNotificacao('O arquivo JSON não contém registros de histórico válidos.', 'error');
-                 return;
+            // 1. Histórico
+            if (imported.historico && Array.isArray(imported.historico)) {
+                const cleanedData = imported.historico.filter(item => item.id && item.data && item.tipo && item.consumo && item.total);
+                if (cleanedData.length === 0 && imported.historico.length > 0) {
+                     mostrarNotificacao('O arquivo JSON não contém registros de histórico válidos.', 'error');
+                     return;
+                }
+                setLocalData(DATA_KEYS.HISTORICO, cleanedData);
+                historico = cleanedData;
             }
 
-            // Sobrescreve o histórico local
-            setLocalData(DATA_KEYS.HISTORICO, cleanedData);
+            // 2. Tarifas
+            if (imported.tarifas && typeof imported.tarifas === 'object') {
+                setLocalData(DATA_KEYS.TARIFAS, imported.tarifas);
+                tarifasMensais = imported.tarifas;
+            }
+
+            // 3. Totais (Recomendado recalcular, mas importa o backup se houver)
+            if (imported.totais) {
+                totalAnteriorAgua = parseFloat(imported.totais.agua) || 0;
+                totalAnteriorEnergia = parseFloat(imported.totais.energia) || 0;
+                setLocalData(DATA_KEYS.TOTAL_AGUA, totalAnteriorAgua);
+                setLocalData(DATA_KEYS.TOTAL_ENERGIA, totalAnteriorEnergia);
+            }
             
             // Recarrega todos os dados
-            carregarHistorico();
             carregarTotais(); 
-            filtrarHistorico();
+            aplicarFiltrosHistorico();
             aplicarFiltroDashboard();
 
-            mostrarNotificacao(`Histórico de ${cleanedData.length} registros restaurado com sucesso!`, 'success');
+            mostrarNotificacao(`Dados de ${historico.length} registros e tarifas restaurados com sucesso!`, 'success');
         } catch (error) {
             console.error(error);
             mostrarNotificacao(`Erro ao processar arquivo JSON: ${error.message}`, 'error');
@@ -1800,8 +2048,44 @@ function importarJSON(event) {
 }
 
 function exportarCSV() {
+    // Usa os dados filtrados atualmente na tabela
+    const filtro = document.getElementById('filtroTipo').value;
+    const periodo = document.getElementById('filtroPeriodo').value;
+    const dadosParaExportar = historico.filter(item => filtro === 'todos' || item.tipo === filtro);
+    
+    // Lógica de filtro de data (usada na função aplicarFiltrosHistorico)
+    let dataInicioFiltro = null;
+    let dataFimFiltro = new Date();
+    dataFimFiltro.setHours(23, 59, 59, 999);
+    
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    if (periodo === 'hoje') {
+        dataInicioFiltro = new Date(hoje);
+    } else if (periodo === '7dias') {
+        dataInicioFiltro = new Date(hoje);
+        dataInicioFiltro.setDate(hoje.getDate() - 6); 
+    } else if (periodo === '30dias') {
+        dataInicioFiltro = new Date(hoje);
+        dataInicioFiltro.setDate(hoje.getDate() - 29); 
+    } else if (periodo === 'custom') {
+        const inicioStr = document.getElementById('filtroDataInicio').value;
+        const fimStr = document.getElementById('filtroDataFim').value;
+        if (inicioStr && fimStr) {
+            dataInicioFiltro = new Date(inicioStr);
+            dataFimFiltro = new Date(fimStr);
+            dataFimFiltro.setHours(23, 59, 59, 999);
+        }
+    }
+
+    let dadosFinais = dadosParaExportar;
+    if (dataInicioFiltro) {
+        dadosFinais = filtrarDadosPorData(dadosParaExportar, dataInicioFiltro, dataFimFiltro);
+    }
+
     const csv = ['"Data/Hora","Tipo","Nome","Consumo","Total"'];
-    historico.forEach(item => {
+    dadosFinais.forEach(item => {
         csv.push(`"${new Date(item.data).toLocaleString('pt-BR')}","${item.tipo.charAt(0).toUpperCase() + item.tipo.slice(1)}","${item.nome}","${parseFloat(item.consumo).toFixed(2)}","${parseFloat(item.total).toFixed(2)}"`);
     });
     const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
@@ -1811,17 +2095,54 @@ function exportarCSV() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    mostrarNotificacao('Arquivo CSV exportado com sucesso!', 'success');
+    mostrarNotificacao(`Arquivo CSV de ${dadosFinais.length} registros exportado com sucesso!`, 'success');
 }
 
 function exportarPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.text("Registro de Consumo - Água e Energia", 14, 20);
+    
+    // Lógica para obter os dados finais filtrados (a mesma do CSV)
+    const filtro = document.getElementById('filtroTipo').value;
+    const periodo = document.getElementById('filtroPeriodo').value;
+    const dadosParaExportar = historico.filter(item => filtro === 'todos' || item.tipo === filtro);
+    
+    let dataInicioFiltro = null;
+    let dataFimFiltro = new Date();
+    dataFimFiltro.setHours(23, 59, 59, 999);
+    
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    if (periodo === 'hoje') {
+        dataInicioFiltro = new Date(hoje);
+    } else if (periodo === '7dias') {
+        dataInicioFiltro = new Date(hoje);
+        dataInicioFiltro.setDate(hoje.getDate() - 6); 
+    } else if (periodo === '30dias') {
+        dataInicioFiltro = new Date(hoje);
+        dataInicioFiltro.setDate(hoje.getDate() - 29); 
+    } else if (periodo === 'custom') {
+        const inicioStr = document.getElementById('filtroDataInicio').value;
+        const fimStr = document.getElementById('filtroDataFim').value;
+        if (inicioStr && fimStr) {
+            dataInicioFiltro = new Date(inicioStr);
+            dataFimFiltro = new Date(fimStr);
+            dataFimFiltro.setHours(23, 59, 59, 999);
+        }
+    }
+
+    let dadosFinais = dadosParaExportar;
+    if (dataInicioFiltro) {
+        dadosFinais = filtrarDadosPorData(dadosParaExportar, dataInicioFiltro, dataFimFiltro);
+    }
+
     doc.setFontSize(10);
-    doc.text(`Total de Registros: ${historico.length}`, 14, 28);
+    doc.text(`Total de Registros (Filtrados): ${dadosFinais.length}`, 14, 28);
     doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 34);
-    const tableData = historico.map(item => [
+    
+    const tableData = dadosFinais.map(item => [
         new Date(item.data).toLocaleString('pt-BR'),
         item.tipo.charAt(0).toUpperCase() + item.tipo.slice(1),
         item.nome,
@@ -1836,8 +2157,95 @@ function exportarPDF() {
         headStyles: { fillColor: [102, 126, 234] }
     });
     doc.save(`historico_consumo_${new Date().toISOString().split('T')[0]}.pdf`);
-    mostrarNotificacao('Arquivo PDF exportado com sucesso!', 'success');
+    mostrarNotificacao(`Arquivo PDF de ${dadosFinais.length} registros exportado com sucesso!`, 'success');
 }
+
+// --- NOVO: Cálculo de Custo por Período na Aba Histórico ---
+
+/**
+ * NOVO: Calcula o custo total para um período e tipo definido pelo usuário.
+ */
+function calcularCustoPorPeriodo() {
+    carregarHistorico();
+    carregarTarifas(); 
+
+    const mesAnoStr = document.getElementById('filtroCustoMesAno').value;
+    const tipo = document.getElementById('filtroCustoTipo').value;
+    const resDetalhe = document.getElementById('resCustoDetalhe');
+    
+    if (!mesAnoStr) {
+        resDetalhe.innerHTML = '<p style="color: var(--danger);">Selecione o Mês/Ano de referência.</p>';
+        return;
+    }
+
+    // 1. Define o período de busca do consumo
+    const dataInicio = getFirstDayOfMonth(mesAnoStr);
+    const dataFim = getLastDayOfMonth(mesAnoStr);
+
+    // 2. Filtra e agrega consumo no período
+    const dadosMes = filtrarDadosPorData(historico, dataInicio, dataFim);
+    
+    const aguaConsumoPeriodo = dadosMes
+        .filter(h => h.tipo === 'agua')
+        .reduce((a, b) => a + b.consumo, 0);
+        
+    const energiaConsumoPeriodo = dadosMes
+        .filter(h => h.tipo === 'energia')
+        .reduce((a, b) => a + b.consumo, 0);
+
+    // 3. Obtém as tarifas e calcula o custo
+    const custo = calcularCusto(aguaConsumoPeriodo, energiaConsumoPeriodo, mesAnoStr);
+    
+    let htmlResultado = '';
+
+    if (tipo === 'agua') {
+        const detalhes = custo.detalhesAgua;
+        const totalConsumo = detalhes.consumo;
+        if (totalConsumo === 0) {
+             htmlResultado = `<p style="color: var(--warning);">💧 **Água:** Nenhum consumo registrado entre ${dataInicio.toLocaleDateString('pt-BR')} e ${dataFim.toLocaleDateString('pt-BR')}.</p>
+                <p>O custo seria apenas de taxas fixas.</p>
+                <span class="total-cost">${currencyFormatter.format(detalhes.taxas)}</span>
+            `;
+        } else {
+             htmlResultado = `
+                <h4 style="margin-bottom: 10px; color: var(--primary);">💧 Água (Referência: ${mesAnoStr})</h4>
+                <p><strong>Consumo Total (m³):</strong> ${totalConsumo.toFixed(2)} m³</p>
+                <p><strong>Tarifa Fixa (cobre ${detalhes.faixaMinima.toFixed(2)} m³):</strong> ${currencyFormatter.format(detalhes.tarifaFixa)}</p>
+                ${detalhes.excedente > 0 ? 
+                    `<p><strong>Consumo Excedente:</strong> ${detalhes.excedente.toFixed(2)} m³ @ ${currencyFormatter.format(detalhes.tarifaExcedente)}/m³</p>
+                    <p><strong>Custo Excedente:</strong> ${currencyFormatter.format(detalhes.custoExcedente)}</p>` :
+                    '<p><strong>Consumo:</strong> Abaixo ou igual à Faixa Mínima.</p>'
+                }
+                <p><strong>Taxas/Parcelamento Fixo:</strong> ${currencyFormatter.format(detalhes.taxas)}</p>
+                <span class="total-cost">TOTAL CUSTO ÁGUA: ${currencyFormatter.format(detalhes.total)}</span>
+            `;
+        }
+    } else { // Energia
+        const detalhes = custo.detalhesEnergia;
+        const totalConsumo = detalhes.consumo;
+        if (totalConsumo === 0) {
+            htmlResultado = `<p style="color: var(--warning);">⚡ **Energia:** Nenhum consumo registrado entre ${dataInicio.toLocaleDateString('pt-BR')} e ${dataFim.toLocaleDateString('pt-BR')}.</p>
+                <p>O custo seria apenas da Taxa COSIP/CIP e Parcelamento.</p>
+                <span class="total-cost">${currencyFormatter.format(detalhes.taxaFixaCOSIP + detalhes.taxas)}</span>
+            `;
+        } else {
+            htmlResultado = `
+                <h4 style="margin-bottom: 10px; color: var(--warning);">⚡ Energia (Referência: ${mesAnoStr})</h4>
+                <p><strong>Consumo Total (kWh):</strong> ${totalConsumo.toFixed(2)} kWh</p>
+                <p><strong>Custo kWh (Base):</strong> ${currencyFormatter.format(detalhes.custoKWh)} (@ ${currencyFormatter.format(detalhes.tarifaKWh)}/kWh)</p>
+                <p><strong>Custo kWh (Bandeira):</strong> ${currencyFormatter.format(detalhes.custoBandeira)} (@ ${currencyFormatter.format(detalhes.tarifaBandeira)}/kWh)</p>
+                <p><strong>Taxa COSIP/CIP (Fixa):</strong> ${currencyFormatter.format(detalhes.taxaFixaCOSIP)}</p>
+                <p><strong>Taxas/Parcelamento Fixo:</strong> ${currencyFormatter.format(detalhes.taxas)}</p>
+                <span class="total-cost">TOTAL CUSTO ENERGIA: ${currencyFormatter.format(detalhes.total)}</span>
+            `;
+        }
+    }
+    
+    resDetalhe.innerHTML = htmlResultado;
+    mostrarNotificacao(`Cálculo de custo detalhado para ${tipo} em ${mesAnoStr} concluído!`, 'success');
+}
+
+// --- FIM NOVO CÁLCULO ---
 
 function carregarMetas() {
     metas.agua = parseFloat(getLocalData(DATA_KEYS.METAS_AGUA, 10));
@@ -1925,91 +2333,107 @@ function atualizarComparacao() {
 }
 
 
-// --- FUNÇÕES DE CUSTO/TARIFAS (IMPLEMENTAÇÃO COMPLETA) ---
+// --- FUNÇÕES DE CUSTO/TARIFAS (Implementação por Mês) ---
 
 function carregarTarifas() {
-    const localTarifas = getLocalData(DATA_KEYS.TARIFAS);
-    if (localTarifas) {
-        // Mescla para garantir que novas chaves (se existirem) não sumam
-        tarifas = { ...tarifas, ...localTarifas }; 
+    tarifasMensais = getLocalData(DATA_KEYS.TARIFAS, {});
+    // Se o objeto estiver vazio, garante que as tarifas padrão sejam salvas para o mês atual.
+    const mesAtual = formatMonthToInput(new Date());
+    if (!tarifasMensais[mesAtual]) {
+        tarifasMensais[mesAtual] = DEFAULT_TARIFFS;
+        setLocalData(DATA_KEYS.TARIFAS, tarifasMensais);
     }
-    // Atualiza o display na aba 'Custo/Tarifas'
-    atualizarDisplayTarifas();
+    // Garante que o input de filtro na aba Histórico tenha o mês atual como default
+    document.getElementById('filtroCustoMesAno').value = mesAtual;
 }
 
-function salvarTarifas(novasTarifas) {
-    tarifas = { ...tarifas, ...novasTarifas };
-    setLocalData(DATA_KEYS.TARIFAS, tarifas);
-    atualizarDisplayTarifas();
-    aplicarFiltroDashboard(); // Recalcula o custo no dashboard
-    mostrarNotificacao('Tarifas e taxas salvas com sucesso!', 'success');
-}
+/**
+ * Atualiza o display na aba 'Custo/Tarifas' com base no mês/ano selecionado.
+ * @param {string} [monthYear] - Mês e ano no formato 'YYYY-MM'. Se não for fornecido, usa o valor do input.
+ */
+function atualizarDisplayTarifas(monthYear = null) {
+    if (!monthYear) {
+        monthYear = document.getElementById('selectTarifaMesAno').value;
+    }
+    
+    const tarifasMes = getTarifasParaMes(monthYear);
 
-function atualizarDisplayTarifas() {
     // ÁGUA
-    document.getElementById('displayFaixaMinimaAgua').textContent = tarifas.aguaFaixaMinima.toFixed(2) + ' m³';
-    document.getElementById('displayTaxaAguaFixa').textContent = currencyFormatter.format(tarifas.aguaFixa);
-    document.getElementById('displayTarifaAguaExcedente').textContent = currencyFormatter.format(tarifas.aguaExcedente);
-    document.getElementById('displayTaxaAguaParcelamento').textContent = currencyFormatter.format(tarifas.aguaParcelamento);
-    document.getElementById('displayTaxaAguaMultas').textContent = currencyFormatter.format(tarifas.aguaMultas);
+    document.getElementById('displayFaixaMinimaAgua').textContent = tarifasMes.aguaFaixaMinima.toFixed(2) + ' m³';
+    document.getElementById('displayTaxaAguaFixa').textContent = currencyFormatter.format(tarifasMes.aguaFixa);
+    document.getElementById('displayTarifaAguaExcedente').textContent = currencyFormatter.format(tarifasMes.aguaExcedente);
+    document.getElementById('displayTaxaAguaParcelamento').textContent = currencyFormatter.format(tarifasMes.aguaParcelamento);
+    document.getElementById('displayTaxaAguaMultas').textContent = currencyFormatter.format(tarifasMes.aguaMultas);
 
     // ENERGIA
-    document.getElementById('displayTarifaEnergiaKWh').textContent = currencyFormatter.format(tarifas.energiaKWh);
-    document.getElementById('displayTarifaEnergiaBandeira').textContent = currencyFormatter.format(tarifas.energiaBandeira) + ' /kWh';
-    document.getElementById('displayTaxaEnergiaFixa').textContent = currencyFormatter.format(tarifas.energiaFixaCOSIP);
-    document.getElementById('displayTaxaEnergiaParcelamento').textContent = currencyFormatter.format(tarifas.energiaParcelamento);
-    document.getElementById('displayTaxaEnergiaMultas').textContent = currencyFormatter.format(tarifas.energiaMultas);
+    document.getElementById('displayTarifaEnergiaKWh').textContent = currencyFormatter.format(tarifasMes.energiaKWh);
+    document.getElementById('displayTarifaEnergiaBandeira').textContent = currencyFormatter.format(tarifasMes.energiaBandeira) + ' /kWh';
+    document.getElementById('displayTaxaEnergiaFixa').textContent = currencyFormatter.format(tarifasMes.energiaFixaCOSIP);
+    document.getElementById('displayTaxaEnergiaParcelamento').textContent = currencyFormatter.format(tarifasMes.energiaParcelamento);
+    document.getElementById('displayTaxaEnergiaMultas').textContent = currencyFormatter.format(tarifasMes.energiaMultas);
 }
 
 function abrirModalEdicaoTarifas() {
+    const mesAno = document.getElementById('selectTarifaMesAno').value;
+    if (!mesAno) {
+        mostrarNotificacao('Por favor, selecione um Mês/Ano para editar as tarifas.', 'warning');
+        return;
+    }
+    const tarifasAtuais = getTarifasParaMes(mesAno);
+    
     const content = `
+        <div class="form-group">
+            <label>Mês/Ano das Tarifas:</label>
+            <input type="month" id="inputTarifaMesAno" value="${mesAno}" readonly>
+        </div>
         <h3 style="margin-top: 10px;">💧 Configurações de Água</h3>
         <p style="font-size: 0.8em; margin-bottom: 10px; color: var(--secondary);">Estrutura baseada em Faixa Mínima + Tarifa Fixa + Excedente.</p>
         <div class="form-group">
             <label>Faixa Mínima (m³)</label>
-            <input type="number" id="inputAguaFaixa" step="0.01" required value="${tarifas.aguaFaixaMinima.toFixed(2)}">
+            <input type="number" id="inputAguaFaixa" step="0.01" required value="${tarifasAtuais.aguaFaixaMinima.toFixed(2)}">
         </div>
         <div class="form-group">
             <label>Tarifa Mínima Fixa (R$)</label>
-            <input type="number" id="inputAguaFixa" step="0.01" required value="${tarifas.aguaFixa.toFixed(2)}">
+            <input type="number" id="inputAguaFixa" step="0.01" required value="${tarifasAtuais.aguaFixa.toFixed(2)}">
         </div>
         <div class="form-group">
             <label>Tarifa por m³ Excedente (R$)</label>
-            <input type="number" id="inputAguaExcedente" step="0.01" required value="${tarifas.aguaExcedente.toFixed(2)}">
+            <input type="number" id="inputAguaExcedente" step="0.01" required value="${tarifasAtuais.aguaExcedente.toFixed(2)}">
         </div>
         <div class="form-group">
             <label>Parcelamento/Juros (R$ - Valor Fixo)</label>
-            <input type="number" id="inputAguaParcelamento" step="0.01" required value="${tarifas.aguaParcelamento.toFixed(2)}">
+            <input type="number" id="inputAguaParcelamento" step="0.01" required value="${tarifasAtuais.aguaParcelamento.toFixed(2)}">
         </div>
         <div class="form-group">
             <label>Multas/Impostos (R$ - Valor Fixo)</label>
-            <input type="number" id="inputAguaMultas" step="0.01" required value="${tarifas.aguaMultas.toFixed(2)}">
+            <input type="number" id="inputAguaMultas" step="0.01" required value="${tarifasAtuais.aguaMultas.toFixed(2)}">
         </div>
         
         <h3 style="margin-top: 25px;">⚡ Configurações de Energia</h3>
         <div class="form-group">
             <label>Tarifa Base por kWh (TE + TUSD) (R$)</label>
-            <input type="number" id="inputEnergiaKWh" step="0.00001" required value="${tarifas.energiaKWh.toFixed(5)}">
+            <input type="number" id="inputEnergiaKWh" step="0.00001" required value="${tarifasAtuais.energiaKWh.toFixed(5)}">
         </div>
         <div class="form-group">
             <label>Custo Adicional (Bandeira) por kWh (R$)</label>
-            <input type="number" id="inputEnergiaBandeira" step="0.001" required value="${tarifas.energiaBandeira.toFixed(3)}">
+            <input type="number" id="inputEnergiaBandeira" step="0.001" required value="${tarifasAtuais.energiaBandeira.toFixed(3)}">
         </div>
         <div class="form-group">
             <label>Taxa COSIP/CIP (R$ - Valor Fixo)</label>
-            <input type="number" id="inputEnergiaFixaCOSIP" step="0.01" required value="${tarifas.energiaFixaCOSIP.toFixed(2)}">
+            <input type="number" id="inputEnergiaFixaCOSIP" step="0.01" required value="${tarifasAtuais.energiaFixaCOSIP.toFixed(2)}">
         </div>
         <div class="form-group">
             <label>Parcelamento (R$ - Valor Fixo)</label>
-            <input type="number" id="inputEnergiaParcelamento" step="0.01" required value="${tarifas.energiaParcelamento.toFixed(2)}">
+            <input type="number" id="inputEnergiaParcelamento" step="0.01" required value="${tarifasAtuais.energiaParcelamento.toFixed(2)}">
         </div>
         <div class="form-group">
             <label>Multas/Juros/Outros (R$ - Valor Fixo)</label>
-            <input type="number" id="inputEnergiaMultas" step="0.01" required value="${tarifas.energiaMultas.toFixed(2)}">
+            <input type="number" id="inputEnergiaMultas" step="0.01" required value="${tarifasAtuais.energiaMultas.toFixed(2)}">
         </div>
     `;
 
-    abrirModal('✏️ Editar Estrutura de Custo', content, (e) => {
+    abrirModal(`✏️ Editar Custo para ${mesAno}`, content, (e) => {
+        const mesParaSalvar = document.getElementById('inputTarifaMesAno').value;
         const novasTarifas = {
             aguaFaixaMinima: parseFloat(document.getElementById('inputAguaFaixa').value) || 0,
             aguaFixa: parseFloat(document.getElementById('inputAguaFixa').value) || 0,
@@ -2023,7 +2447,14 @@ function abrirModalEdicaoTarifas() {
             energiaParcelamento: parseFloat(document.getElementById('inputEnergiaParcelamento').value) || 0,
             energiaMultas: parseFloat(document.getElementById('inputEnergiaMultas').value) || 0,
         };
-        salvarTarifas(novasTarifas);
+        
+        // Salva no objeto aninhado
+        tarifasMensais[mesParaSalvar] = novasTarifas;
+        setLocalData(DATA_KEYS.TARIFAS, tarifasMensais);
+        atualizarDisplayTarifas(mesParaSalvar);
+        aplicarFiltroDashboard(); // Recalcula o custo no dashboard
+        mostrarNotificacao(`Tarifas para ${mesParaSalvar} salvas com sucesso!`, 'success');
+
     }, 'Salvar Tarifas');
 }
 
@@ -2044,7 +2475,8 @@ async function loadInitialData() {
     loadTheme();
     carregarMetas();
     carregarHistorico();
-    carregarTarifas(); // Carrega as tarifas antes de calcular totais para o dashboard
+    carregarTarifas(); 
+
     await carregarTotais(); 
 
     // Preenche os campos de Nome/Matrícula
@@ -2053,7 +2485,9 @@ async function loadInitialData() {
     document.querySelectorAll('input[name="nome"]').forEach(input => input.value = lastNome);
     document.querySelectorAll('input[name="matricula"]').forEach(input => input.value = lastMatricula);
 
-    // Configura as datas padrão (últimos 30 dias)
+    // Configura as datas padrão (últimos 30 dias) para o Dashboard
+    const hoje = new Date();
+    
     dashboardDataFim = new Date();
     dashboardDataInicio = new Date();
     dashboardDataInicio.setDate(dashboardDataFim.getDate() - 30);
@@ -2061,13 +2495,23 @@ async function loadInitialData() {
     document.getElementById('dataInicio').value = formatDateToInput(dashboardDataInicio);
     document.getElementById('dataFim').value = formatDateToInput(dashboardDataFim);
     document.getElementById('agregacao').value = 'diario';
+    
+    // Configura o filtro de Período Padrão (30 dias)
+    document.getElementById('filtroPeriodo').value = '30dias';
+    document.getElementById('filtroTipo').value = 'todos';
+
+    // Configura o mês padrão para o filtro de Custo/Tarifas
+    const mesAtual = formatMonthToInput(hoje);
+    document.getElementById('selectTarifaMesAno').value = mesAtual;
+    document.getElementById('filtroCustoMesAno').value = mesAtual;
 }
 
 window.onload = function() {
     loadInitialData();
     setupEventListeners();
     showFormTab('agua', document.querySelector('.form-card > div:first-child .tab-button.active'));
-    filtrarHistorico(); // Garante que a tabela de histórico carrega na primeira vez.
+    aplicarFiltrosHistorico(); // Garante que a tabela de histórico carrega com filtro padrão.
+    atualizarDisplayTarifas(); // Garante que o display de tarifas carregue com o mês atual.
 };
 </script>
 </body>
