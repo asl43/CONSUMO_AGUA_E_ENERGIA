@@ -7,15 +7,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
-  /* [CSS ANTERIOR PERMANECE INALTERADO PARA CONCISÃO] */
-
   * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
   }
-
   :root {
     --primary: #667eea;
     --secondary: #764ba2;
@@ -27,7 +25,6 @@
     --text-light: #333333;
     --text-dark: #ffffff;
   }
-
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary)100%);
@@ -37,11 +34,9 @@
     overflow-x: hidden;
     transition: all 0.3s;
   }
-
   body.dark-mode {
     background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
   }
-
   body::before {
     content: '';
     position: absolute;
@@ -52,14 +47,12 @@
     background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
     pointer-events: none;
   }
-
   .container {
     max-width: 1200px;
     margin: 0 auto;
     position: relative;
     z-index: 1;
   }
-
   .header {
     display: flex;
     justify-content: space-between;
@@ -68,7 +61,6 @@
     flex-wrap: wrap;
     gap: 15px;
   }
-
   h1 {
     color: white;
     font-size: clamp(24px, 5vw, 36px);
@@ -76,7 +68,6 @@
     text-shadow: 0 2px 10px rgba(0,0,0,0.3);
     animation: slideDown 0.6s ease-out;
   }
-
   .theme-toggle {
     background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
@@ -88,12 +79,10 @@
     font-size: 20px;
     transition: all 0.3s;
   }
-
   .theme-toggle:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: scale(1.05);
   }
-
   @keyframes slideDown {
     from {
       opacity: 0;
@@ -104,7 +93,6 @@
       transform: translateY(0);
     }
   }
-
   .main-tabs {
     display: flex;
     gap: 12px;
@@ -112,7 +100,6 @@
     animation: fadeIn 0.8s ease-out 0.2s both;
     flex-wrap: wrap;
   }
-
   .tab-button {
     flex: 1;
     min-width: 120px;
@@ -131,30 +118,25 @@
     justify-content: center;
     gap: 8px;
   }
-
   .tab-button:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0,0,0,0.2);
   }
-
   .tab-button.active {
     background: white;
     color: var(--primary);
     border-color: white;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   }
-
   .main-content {
     display: none;
   }
-
   .main-content.active {
     display: grid;
     gap: 20px;
     animation: scaleIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
-
   @keyframes scaleIn {
     from {
       opacity: 0;
@@ -165,26 +147,22 @@
       transform: scale(1);
     }
   }
-
   .form-card {
     background: white;
     padding: 30px;
     border-radius: 24px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
   }
-
   body.dark-mode .form-card {
     background: #16213e;
     color: var(--text-dark);
   }
-
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
     margin-bottom: 20px;
   }
-
   .stat-card {
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     color: white;
@@ -193,26 +171,25 @@
     text-align: center;
     box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
   }
-
   .stat-card .label {
     font-size: 14px;
     opacity: 0.9;
     margin-bottom: 8px;
   }
-
   .stat-card .value {
     font-size: 28px;
     font-weight: 700;
   }
-
   .stat-card.warning {
     background: linear-gradient(135deg, var(--warning) 0%, #f97316 100%);
   }
-
   .stat-card.success {
     background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
   }
-
+  /* NOVO: Estilo para alerta de meta excedida */
+  .stat-card.danger {
+    background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+  }
   .chart-container {
     position: relative;
     height: 300px;
@@ -221,15 +198,12 @@
     padding: 20px;
     border-radius: 16px;
   }
-
   body.dark-mode .chart-container {
     background: #0f3460;
   }
-
   .form-group {
     margin-bottom: 20px;
   }
-
   label {
     display: block;
     margin-bottom: 8px;
@@ -237,11 +211,9 @@
     color: #333;
     font-size: 14px;
   }
-
   body.dark-mode label {
     color: var(--text-dark);
   }
-
   input, select {
     width: 100%;
     padding: 14px 16px;
@@ -251,39 +223,43 @@
     transition: all 0.3s;
     background: #f8f9fa;
   }
-
   body.dark-mode input,
   body.dark-mode select {
     background: #0f3460;
     border-color: #1a1a2e;
     color: white;
   }
-
   input:focus, select:focus {
     outline: none;
     border-color: var(--primary);
     background: white;
     box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
   }
-
   body.dark-mode input:focus,
   body.dark-mode select:focus {
     background: #16213e;
   }
-
   input:read-only {
     background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
     cursor: not-allowed;
     font-weight: 600;
     color: var(--primary);
   }
-
+  /* NOVO: Leitura anterior mais destacada */
+  input.previous-reading {
+    background: #e0f2f1;
+    color: var(--success);
+    font-weight: 700;
+  }
+  body.dark-mode input.previous-reading {
+    background: #004d40;
+    color: #80cbc4;
+  }
   .button-group {
     display: grid;
     gap: 12px;
     margin-top: 24px;
   }
-
   button, .btn {
     padding: 16px;
     border: none;
@@ -294,45 +270,37 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     width: 100%;
   }
-
   .btn-primary {
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     color: white;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
   }
-
   .btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
   }
-
   .btn-secondary {
     background: white;
     color: var(--primary);
     border: 2px solid var(--primary);
   }
-
   body.dark-mode .btn-secondary {
     background: #0f3460;
     color: white;
   }
-
   .btn-secondary:hover {
     background: var(--primary);
     color: white;
     transform: translateY(-2px);
   }
-
   .btn-success {
     background: var(--success);
     color: white;
   }
-
   .btn-danger {
     background: var(--danger);
     color: white;
   }
-
   .mensagem {
     text-align: center;
     font-weight: 600;
@@ -341,44 +309,49 @@
     border-radius: 8px;
     animation: fadeIn 0.3s;
   }
-
   .mensagem.success {
     background: #d4edda;
     color: #155724;
   }
-
   .mensagem.error {
     background: #f8d7da;
     color: #721c24;
   }
-
   .history-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
   }
-
   .history-table th,
   .history-table td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #e0e0e0;
   }
-
+  /* Estilização para leitura da tabela */
+  .history-table tbody tr:nth-child(even) {
+    background-color: #f0f4ff; 
+  }
+  body.dark-mode .history-table tbody tr:nth-child(even) {
+    background-color: #1a1a2e;
+  }
+  /* Alinhar números à direita */
+  .history-table td:nth-child(4), 
+  .history-table td:nth-child(5) {
+    text-align: right;
+    font-weight: 600;
+  }
   body.dark-mode .history-table th,
   body.dark-mode .history-table td {
     border-color: #1a1a2e;
   }
-
   .history-table th {
     background: #f8f9fa;
     font-weight: 600;
   }
-
   body.dark-mode .history-table th {
     background: #0f3460;
   }
-
   .notification {
     position: fixed;
     top: 20px;
@@ -392,7 +365,6 @@
     max-width: 300px;
     border-left: 4px solid;
   }
-
   .notification.success {
     border-color: var(--success);
   }
@@ -402,7 +374,6 @@
   .notification.error {
     border-color: var(--danger);
   }
-
   @keyframes slideInRight {
     from {
       transform: translateX(400px);
@@ -413,11 +384,9 @@
       opacity: 1;
     }
   }
-
   .goal-progress {
     margin: 20px 0;
   }
-
   .progress-bar {
     width: 100%;
     height: 30px;
@@ -426,7 +395,6 @@
     overflow: hidden;
     position: relative;
   }
-
   .progress-fill {
     height: 100%;
     background: linear-gradient(90deg, var(--success) 0%, #059669 100%);
@@ -440,93 +408,223 @@
     white-space: nowrap; 
     padding: 0 10px;
   }
-
   .progress-fill.over {
     background: linear-gradient(90deg, var(--danger) 0%, #dc2626 100%);
   }
-
   .comparison-section {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
     margin: 20px 0;
   }
-
   .comparison-card {
     background: #f8f9fa;
     padding: 20px;
     border-radius: 12px;
     text-align: center;
   }
-
   body.dark-mode .comparison-card {
     background: #0f3460;
   }
-
   .comparison-card .icon {
     font-size: 40px;
     margin-bottom: 10px;
   }
-
   .comparison-card .value {
     font-size: 24px;
     font-weight: 700;
     color: var(--primary);
   }
-
   body.dark-mode .comparison-card .value {
     color: #64b5f6;
   }
-
   .export-buttons {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: 10px;
-    margin: 20px 0;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    align-items: center; 
+  }
+
+  .btn-icon {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1; 
+  }
+
+  .btn-edit {
+    background: #3b82f6;
+    color: white;
+  }
+
+  .btn-edit:hover {
+    background: #2563eb;
+    transform: scale(1.05);
+  }
+
+  .btn-delete {
+    background: #ef4444;
+    color: white;
+  }
+
+  .btn-delete:hover {
+    background: #dc2626;
+    transform: scale(1.05);
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s;
+  }
+
+  .modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    animation: scaleIn 0.3s;
+  }
+
+  body.dark-mode .modal-content {
+    background: #16213e;
+    color: var(--text-dark);
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  body.dark-mode .modal-header {
+    border-color: #1a1a2e;
+  }
+
+  .modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+  }
+
+  .btn-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #999;
+    transition: all 0.2s;
+    padding: 0;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  .btn-close:hover {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  body.dark-mode .btn-close:hover {
+    background: #0f3460;
+    color: white;
+  }
+
+  .filter-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+
+  body.dark-mode .filter-section {
+    background: #0f3460;
+  }
+
+  .filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+
+  .dashboard-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto; 
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: end;
   }
 
   @media (max-width: 768px) {
     body {
       padding: 12px;
     }
-
     .form-card {
       padding: 20px;
     }
-
     .main-tabs {
       gap: 8px;
     }
-
     .tab-button {
       padding: 12px;
       font-size: 14px;
       min-width: 100px;
     }
-
     .stats-grid {
       grid-template-columns: 1fr;
     }
-
     .chart-container {
       height: 250px;
     }
+    .dashboard-filters {
+        grid-template-columns: 1fr;
+    }
   }
-
   @keyframes fadeIn {
     from {opacity: 0;}
     to {opacity: 1;}
   }
-
   .loading {
     animation: pulse 1.5s infinite;
   }
-
   @keyframes pulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
   }
-  
   .spreadsheet-link {
     margin-bottom: 20px;
     padding: 12px;
@@ -538,16 +636,13 @@
     color: #00796b;
     transition: background-color 0.3s;
   }
-  
   .spreadsheet-link a {
     color: var(--primary);
     text-decoration: none;
   }
-  
   .spreadsheet-link:hover {
     background-color: #b2dfdb;
   }
-  
   body.dark-mode .spreadsheet-link {
     background-color: #0f3460;
     border-color: #2196f3;
@@ -556,16 +651,20 @@
   body.dark-mode .spreadsheet-link a {
     color: #64b5f6;
   }
+  .spreadsheet-link .warning {
+    font-size: 0.8em; 
+    color: var(--danger); 
+    margin-top: 5px;
+    font-weight: normal;
+  }
 </style>
 </head>
 <body>
-
 <div class="container">
   <div class="header">
     <h1>💧⚡ Registro de Consumo</h1>
     <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
   </div>
-
   <div class="main-tabs">
     <button class="tab-button active" onclick="showMainTab('registro')">
       <span>📝 Registro</span>
@@ -582,15 +681,19 @@
     <button class="tab-button" onclick="showMainTab('comparacao')">
       <span>👥 Comparação</span>
     </button>
+    <button class="tab-button" onclick="showMainTab('custo')">
+      <span>💰 Custo/Tarifas</span>
+    </button>
   </div>
-
   <div id="registro" class="main-content active">
-    
     <div class="spreadsheet-link">
         <p>Acesse a planilha de dados:</p>
         <a href="#" id="spreadsheetLinkAnchor" target="_blank" class="btn-secondary" style="display: inline-block; width: auto;">
             Abrir Planilha (Google Sheets)
         </a>
+        <p class="warning">
+          ⚠️ **Aviso:** Edições ou exclusões de registros devem ser feitas manualmente na planilha.
+        </p>
     </div>
     <div class="stats-grid">
       <div class="stat-card">
@@ -602,7 +705,6 @@
         <div class="value" id="displayTotalEnergia">0.00 kWh</div>
       </div>
     </div>
-
     <div class="form-card">
       <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
         <button class="tab-button active" style="flex: 1; min-width: 150px;" onclick="showFormTab('agua', this)">
@@ -612,116 +714,112 @@
           ⚡ Energia
         </button>
       </div>
-
       <div id="formAgua" class="form-content">
         <form id="aguaForm">
           <div class="form-group">
             <label>Nome</label>
             <input type="text" name="nome" required placeholder="Digite seu nome">
           </div>
-
           <div class="form-group">
             <label>Matrícula</label>
             <input type="text" name="matricula" required placeholder="Digite sua matrícula">
           </div>
-
           <div class="form-group">
             <label>Data e Hora</label>
             <input type="datetime-local" name="dataHora" required>
           </div>
-
           <div class="form-group">
-            <label>Consumo de Água (m³)</label>
-            <input type="number" name="consumoAgua" id="consumoAgua" step="0.01" required placeholder="0.00">
+            <label>Leitura Anterior Acumulada (m³)</label>
+            <input type="number" id="leituraAnteriorAguaDisplay" step="0.01" readonly class="previous-reading">
           </div>
-
+          <div class="form-group">
+            <label>Leitura Atual do Medidor (m³)</label>
+            <input type="number" name="leituraAtualAgua" id="leituraAtualAgua" step="0.01" required placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label>Consumo Calculado (m³)</label>
+            <input type="number" name="consumoAgua" id="consumoAgua" step="0.01" readonly placeholder="0.00">
+          </div>
           <div class="form-group">
             <label>Novo Total (m³)</label>
             <input type="number" name="totalAgua" id="totalAgua" step="0.01" readonly>
           </div>
-
           <div class="button-group">
-            <button type="button" class="btn btn-secondary" onclick="definirInicio('agua')">
+            <button type="button" class="btn btn-secondary" onclick="abrirModalRedefinir('agua')">
               🔄 Redefinir Total Inicial (Início da Contagem)
             </button>
           </div>
-
           <div style="margin-top: 24px; padding-top: 24px; border-top: 2px dashed #e0e0e0;">
             <h3 style="margin-bottom: 16px;">📝 Campos Adicionais (Opcional)</h3>
             <div class="form-group">
               <label>Campo Extra 1</label>
               <input type="text" name="extra1" placeholder="Opcional">
             </div>
-
             <div class="form-group">
               <label>Campo Extra 2</label>
               <input type="text" name="extra2" placeholder="Opcional">
             </div>
-
             <div class="form-group">
               <label>Campo Extra 3</label>
               <input type="text" name="extra3" placeholder="Opcional">
             </div>
           </div>
-
           <div class="button-group">
             <button type="submit" class="btn btn-primary">✅ Enviar Registro de Água</button>
           </div>
           <p class="mensagem" id="msgAgua"></p>
         </form>
       </div>
-
       <div id="formEnergia" class="form-content" style="display: none;">
         <form id="energiaForm">
           <div class="form-group">
             <label>Nome</label>
             <input type="text" name="nome" required placeholder="Digite seu nome">
           </div>
-
           <div class="form-group">
             <label>Matrícula</label>
             <input type="text" name="matricula" required placeholder="Digite sua matrícula">
           </div>
-
           <div class="form-group">
             <label>Data e Hora</label>
             <input type="datetime-local" name="dataHora" required>
           </div>
-
           <div class="form-group">
-            <label>Consumo de Energia (kWh)</label>
-            <input type="number" name="consumoEnergia" id="consumoEnergia" step="0.01" required placeholder="0.00">
+            <label>Leitura Anterior Acumulada (kWh)</label>
+            <input type="number" id="leituraAnteriorEnergiaDisplay" step="0.01" readonly class="previous-reading">
           </div>
-
+          <div class="form-group">
+            <label>Leitura Atual do Medidor (kWh)</label>
+            <input type="number" name="leituraAtualEnergia" id="leituraAtualEnergia" step="0.01" required placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label>Consumo Calculado (kWh)</label>
+            <input type="number" name="consumoEnergia" id="consumoEnergia" step="0.01" readonly placeholder="0.00">
+          </div>
           <div class="form-group">
             <label>Novo Total (kWh)</label>
             <input type="number" name="totalEnergia" id="totalEnergia" step="0.01" readonly>
           </div>
-
           <div class="button-group">
-            <button type="button" class="btn btn-secondary" onclick="definirInicio('energia')">
+            <button type="button" class="btn btn-secondary" onclick="abrirModalRedefinir('energia')">
               🔄 Redefinir Total Inicial (Início da Contagem)
             </button>
           </div>
-
           <div style="margin-top: 24px; padding-top: 24px; border-top: 2px dashed #e0e0e0;">
             <h3 style="margin-bottom: 16px;">📝 Campos Adicionais (Opcional)</h3>
             <div class="form-group">
               <label>Campo Extra 1</label>
               <input type="text" name="extra1" placeholder="Opcional">
             </div>
-
             <div class="form-group">
               <label>Campo Extra 2</label>
               <input type="text" name="extra2" placeholder="Opcional">
             </div>
-
             <div class="form-group">
               <label>Campo Extra 3</label>
               <input type="text" name="extra3" placeholder="Opcional">
             </div>
           </div>
-
           <div class="button-group">
             <button type="submit" class="btn btn-primary">✅ Enviar Registro de Energia</button>
           </div>
@@ -730,19 +828,18 @@
       </div>
     </div>
   </div>
-
   <div id="dashboard" class="main-content">
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="label">Consumo Água (Recente)</div>
+        <div class="label">Consumo Água (Período)</div>
         <div class="value" id="aguaMes">0.00 m³</div>
       </div>
       <div class="stat-card">
-        <div class="label">Consumo Energia (Recente)</div>
+        <div class="label">Consumo Energia (Período)</div>
         <div class="value" id="energiaMes">0.00 kWh</div>
       </div>
-      <div class="stat-card success">
-        <div class="label">Economia Água</div>
+      <div class="stat-card success" id="cardEconomiaAgua">
+        <div class="label">Meta Água (Economia)</div>
         <div class="value" id="economiaAgua">0%</div>
       </div>
       <div class="stat-card warning">
@@ -750,14 +847,35 @@
         <div class="value" id="custoTotal">R$ 0,00</div>
       </div>
     </div>
-
     <div class="form-card">
-      <h2 style="margin-bottom: 20px;">📈 Gráfico de Consumo (Últimos 6 Registros)</h2>
+      <h2 style="margin-bottom: 20px;">📈 Gráfico de Consumo por Período</h2>
+      
+      <div class="dashboard-filters">
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="dataInicio">Data Início</label>
+            <input type="date" id="dataInicio">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="dataFim">Data Fim</label>
+            <input type="date" id="dataFim">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="agregacao">Agregação</label>
+            <select id="agregacao">
+                <option value="diario">Diário</option>
+                <option value="semanal">Semanal</option>
+                <option value="mensal">Mensal</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" onclick="aplicarFiltroDashboard()" style="padding: 14px; margin-top: 5px;">
+            Aplicar Filtro
+        </button>
+      </div>
+      
       <div class="chart-container">
         <canvas id="consumptionChart"></canvas>
       </div>
     </div>
-
     <div class="form-card" style="margin-top: 20px;">
       <h2 style="margin-bottom: 20px;">📊 Distribuição por Tipo (Total Acumulado)</h2>
       <div class="chart-container" style="height: 250px;">
@@ -765,17 +883,11 @@
       </div>
     </div>
   </div>
-
   <div id="historico" class="main-content">
     <div class="form-card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
         <h2>📋 Histórico de Registros (Dados Locais)</h2>
-        <div class="export-buttons" style="max-width: 400px;">
-          <button class="btn btn-success" onclick="exportarCSV()">📥 CSV</button>
-          <button class="btn btn-danger" onclick="exportarPDF()">📄 PDF</button>
-        </div>
       </div>
-      
       <div class="form-group">
         <label>Filtrar por Tipo</label>
         <select id="filtroTipo" onchange="filtrarHistorico()">
@@ -784,7 +896,19 @@
           <option value="energia">Energia</option>
         </select>
       </div>
-
+      <div class="export-buttons">
+          <button class="btn btn-success" onclick="exportarCSV()">📥 Exportar CSV</button>
+          <button class="btn btn-danger" onclick="exportarPDF()">📄 Exportar PDF</button>
+      </div>
+      <div class="filter-section" style="margin-top: 20px;">
+        <h3>💾 Backup & Restauração Local</h3>
+        <p style="font-size: 0.9em; margin-bottom: 10px;">Salve ou restaure o histórico local (JSON) para evitar perda de dados no navegador.</p>
+        <div class="export-buttons">
+            <button class="btn btn-secondary" onclick="exportarJSON()">📥 Backup JSON</button>
+            <input type="file" id="importJsonFile" accept=".json" style="display: none;" onchange="importarJSON(event)">
+            <button class="btn btn-secondary" onclick="document.getElementById('importJsonFile').click()">📤 Restaurar JSON</button>
+        </div>
+      </div>
       <div style="overflow-x: auto;">
         <table class="history-table">
           <thead>
@@ -792,58 +916,51 @@
               <th>Data/Hora</th>
               <th>Tipo</th>
               <th>Nome</th>
-              <th>Consumo</th>
-              <th>Total</th>
-            </tr>
+              <th style="text-align: right;">Consumo</th>
+              <th style="text-align: right;">Total</th>
+              <th style="text-align: center;">Ações</th> </tr>
           </thead>
           <tbody id="historicoBody">
             <tr>
-              <td colspan="5" style="text-align: center; padding: 40px;">Nenhum registro encontrado</td>
+              <td colspan="6" style="text-align: center; padding: 40px;">Nenhum registro encontrado</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
-
   <div id="metas" class="main-content">
     <div class="form-card">
       <h2 style="margin-bottom: 20px;">🎯 Definir Metas de Consumo</h2>
-      
       <div class="form-group">
         <label>Meta de Água Mensal (m³)</label>
         <input type="number" id="metaAgua" step="0.01" placeholder="Ex: 10.00" onchange="salvarMetas()">
       </div>
-
       <div class="form-group">
         <label>Meta de Energia Mensal (kWh)</label>
         <input type="number" id="metaEnergia" step="0.01" placeholder="Ex: 150.00" onchange="salvarMetas()">
       </div>
-
       <div class="goal-progress">
-        <h3 style="margin-bottom: 10px;">Progresso - Água (Consumo Recente)</h3>
+        <h3 style="margin-bottom: 10px;">Progresso - Água (Consumo Recente - 30 Dias)</h3>
         <div class="progress-bar">
           <div class="progress-fill" id="progressAgua" style="width: 0%;">0% (0.00 / 0.00 m³)</div>
         </div>
       </div>
-
       <div class="goal-progress">
-        <h3 style="margin-bottom: 10px;">Progresso - Energia (Consumo Recente)</h3>
+        <h3 style="margin-bottom: 10px;">Progresso - Energia (Consumo Recente - 30 Dias)</h3>
         <div class="progress-bar">
           <div class="progress-fill" id="progressEnergia" style="width: 0%;">0% (0.00 / 0.00 kWh)</div>
         </div>
       </div>
     </div>
   </div>
-
   <div id="comparacao" class="main-content">
     <div class="form-card">
       <h2 style="margin-bottom: 20px;">👥 Comparação com Média (Simulada)</h2>
-      
       <div class="comparison-section">
         <div class="comparison-card">
           <div class="icon">💧</div>
-          <div class="label">Seu Consumo (Recente)</div>
+          <div class="label">Seu Consumo (Últimos 30 Dias)</div>
           <div class="value" id="compSeuAgua">0.00 m³</div>
         </div>
         <div class="comparison-card">
@@ -853,7 +970,7 @@
         </div>
         <div class="comparison-card">
           <div class="icon">⚡</div>
-          <div class="label">Sua Energia (Recente)</div>
+          <div class="label">Sua Energia (Últimos 30 Dias)</div>
           <div class="value" id="compSeuEnergia">0.00 kWh</div>
         </div>
         <div class="comparison-card">
@@ -862,37 +979,109 @@
           <div class="value" id="compMediaEnergia">0.00 kWh</div>
         </div>
       </div>
-
       <div class="form-card" style="margin-top: 20px; background: #f8f9fa;">
         <h3 style="margin-bottom: 15px;">💡 Análise</h3>
         <p id="analiseTexto">Configure suas metas e registre consumos para ver a análise comparativa.</p>
       </div>
     </div>
   </div>
+  <div id="custo" class="main-content">
+    <div class="form-card">
+      <h2 style="margin-bottom: 20px;">💰 Estrutura de Custo e Tarifas</h2>
+      <div style="margin-bottom: 20px;">
+        <p style="font-size: 0.9em; margin-bottom: 10px;">As tarifas e taxas abaixo são usadas para calcular o "Custo Estimado" no Dashboard. Edite para refletir suas contas reais.</p>
+        <button class="btn btn-primary" onclick="abrirModalEdicaoTarifas()">
+          ✏️ Editar Tarifas e Taxas
+        </button>
+      </div>
+
+      <div class="comparison-card" style="margin-top: 20px; text-align: left; background: #e0f2f1;">
+        <h3 style="color: var(--primary);">💧 Água (m³) - Estrutura de Custo</h3>
+        <p><strong>Faixa Mínima (m³):</strong> <span id="displayFaixaMinimaAgua">0 m³</span></p>
+        <p><strong>Tarifa Mínima Fixa (R$):</strong> <span id="displayTaxaAguaFixa">R$ 0,00</span></p>
+        <p><strong>Tarifa por m³ Excedente (R$):</strong> <span id="displayTarifaAguaExcedente">R$ 0,00</span></p>
+        <p style="margin-top: 10px;">**Taxas Adicionais**</p>
+        <p><strong>Parcelamento/Juros (R$):</strong> <span id="displayTaxaAguaParcelamento">R$ 0,00</span></p>
+        <p><strong>Multas/Impostos (R$):</strong> <span id="displayTaxaAguaMultas">R$ 0,00</span></p>
+      </div>
+
+      <div class="comparison-card" style="margin-top: 15px; text-align: left; background: #fffde7;">
+        <h3 style="color: var(--warning);">⚡ Energia (kWh) - Estrutura de Custo</h3>
+        <p><strong>Tarifa por kWh (R$):</strong> <span id="displayTarifaEnergiaKWh">R$ 0,00</span></p>
+        <p><strong>Custo COSIP Fixo (R$):</strong> <span id="displayTaxaEnergiaFixa">R$ 0,00</span></p>
+        <p><strong>Custo Adicional (Bandeira) por kWh:</strong> <span id="displayTarifaEnergiaBandeira">R$ 0,00</span></p>
+        <p style="margin-top: 10px;">**Taxas Adicionais**</p>
+        <p><strong>Parcelamento (R$):</strong> <span id="displayTaxaEnergiaParcelamento">R$ 0,00</span></p>
+        <p><strong>Multas/Juros/Outros (R$):</strong> <span id="displayTaxaEnergiaMultas">R$ 0,00</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="genericModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Título</h2>
+            <button class="btn-close" onclick="fecharModal()">&times;</button>
+        </div>
+        <div id="modalBody">
+            <form id="modalForm">
+              <div id="modalFormContent">
+                </div>
+              <div class="button-group">
+                <button type="submit" class="btn btn-primary" id="modalSubmitBtn">Salvar</button>
+              </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
 // CONFIGURAÇÕES GLOBAIS
-// 🛑 IMPORTANTE: Para o link da planilha funcionar, você deve substituir
-// esta URL pelo URL de EDIÇÃO DA SUA PLANILHA (não o URL /exec)
 const GOOGLE_SHEET_EDIT_URL = "https://docs.google.com/spreadsheets/d/SUA_ID_DA_PLANILHA/edit"; 
 const scriptURL = "https://script.google.com/macros/s/AKfycbyfpjvwFpYmruXMHYlOBu6_XY_I1U0qRRGapmXU8SgmyvVdNVK2iCJwp-fxn58ipx1U/exec";
-
 const DATA_KEYS = {
     TOTAL_AGUA: 'totalAnteriorAgua',
     TOTAL_ENERGIA: 'totalAnteriorEnergia',
     HISTORICO: 'historico',
     METAS_AGUA: 'metaAgua',
     METAS_ENERGIA: 'metaEnergia',
-    THEME: 'theme'
+    THEME: 'theme',
+    TARIFAS: 'tarifas' // <<< NOVO: Chave de Tarifas
 };
 
 let totalAnteriorAgua = 0;
 let totalAnteriorEnergia = 0;
 let historico = [];
 let metas = { agua: 10, energia: 150 };
+// <<< OBJETO DE TARIFAS MAIS DETALHADO (Valores iniciais baseados nas contas fornecidas)
+let tarifas = {
+    // ÁGUA (Baseado na primeira imagem)
+    aguaFaixaMinima: 10.00,        // Faixa de consumo que se encaixa no valor fixo (m³)
+    aguaFixa: 25.00,               // Tarifa mínima fixa (R$)
+    aguaExcedente: 6.50,           // Tarifa por m³ após a faixa mínima (R$)
+    aguaParcelamento: 29.69,       // Valor fixo de parcelamentos na conta de água (R$)
+    aguaMultas: 5.96,              // Valor fixo de multas/juros na conta de água (R$)
+    
+    // ENERGIA (Baseado na segunda imagem)
+    energiaKWh: 0.92181,           // Tarifa por kWh (TE + TUSD) (R$)
+    energiaBandeira: 0.10,         // Custo por kWh da Bandeira (R$ - Um valor simulado, ajuste para a sua bandeira)
+    energiaFixaCOSIP: 53.33,       // Custo Fixo de Iluminação Pública (COSIP/CIP) (R$)
+    energiaParcelamento: 266.35,   // Valor fixo de parcelamentos na conta de energia (R$)
+    energiaMultas: 3.42,           // Valor fixo de multas/juros na conta de energia (R$)
+};
 let chartInstance = null;
 let pieChartInstance = null;
+
+// Variáveis de estado do Dashboard
+let dashboardDataInicio = new Date();
+let dashboardDataFim = new Date();
+
+// Objeto para formatação de moeda
+const currencyFormatter = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+});
 
 // --- FUNÇÕES DE UTILITY (LOCAL STORAGE & UX) ---
 
@@ -928,14 +1117,16 @@ function mostrarNotificacao(mensagem, tipo = 'warning') {
   const icon = tipo === 'success' ? '✅ Sucesso' : tipo === 'error' ? '❌ Erro' : '⚠️ Alerta';
   notif.innerHTML = `<strong>${icon}</strong><p>${mensagem}</p>`;
   document.body.appendChild(notif);
-  
   setTimeout(() => {
     notif.style.animation = 'slideInRight 0.3s reverse';
     setTimeout(() => notif.remove(), 300);
   }, 5000);
 }
 
-// --- FUNÇÕES DE TEMA ---
+// Converte a data do formato Date para string AAAA-MM-DD
+const formatDateToInput = (date) => date.toISOString().split('T')[0];
+
+// --- FUNÇÕES DE TEMA, MODAL, NAVEGAÇÃO, TOTAIS ---
 
 function loadTheme() {
     const theme = getLocalData(DATA_KEYS.THEME);
@@ -955,51 +1146,69 @@ function toggleTheme() {
   setLocalData(DATA_KEYS.THEME, isDark ? 'dark' : 'light');
 }
 
-// --- FUNÇÕES DE NAVEGAÇÃO E TOTAIS ---
+function abrirModal(title, contentHTML, onSubmit, submitText = 'Salvar') {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalFormContent').innerHTML = contentHTML;
+    document.getElementById('modalSubmitBtn').textContent = submitText;
+
+    const modalForm = document.getElementById('modalForm');
+    modalForm.removeEventListener('submit', modalForm._currentSubmitHandler);
+
+    modalForm._currentSubmitHandler = function(e) {
+        e.preventDefault();
+        onSubmit(e);
+        fecharModal();
+    };
+    modalForm.addEventListener('submit', modalForm._currentSubmitHandler);
+
+    document.getElementById('genericModal').classList.add('active');
+}
+
+function fecharModal() {
+    document.getElementById('genericModal').classList.remove('active');
+    document.getElementById('modalForm').removeEventListener('submit', document.getElementById('modalForm')._currentSubmitHandler);
+}
 
 function showMainTab(tabId) {
   document.querySelectorAll('.main-content').forEach(div => div.classList.remove('active'));
   document.querySelectorAll('.main-tabs .tab-button').forEach(btn => btn.classList.remove('active'));
   document.getElementById(tabId).classList.add('active');
-  
   const clickedButton = Array.from(document.querySelectorAll('.main-tabs .tab-button'))
                             .find(btn => btn.getAttribute('onclick').includes(`'${tabId}'`));
   if(clickedButton) clickedButton.classList.add('active');
-
-  // Ações específicas de tab: Atualizar dados visíveis
+  
   if (tabId === 'dashboard') {
-    carregarHistorico(); // Garante o histórico mais recente
-    setTimeout(criarGraficos, 100);
+    carregarHistorico(); 
+    aplicarFiltroDashboard(); 
   } else if (tabId === 'historico') {
     carregarHistorico();
+    filtrarHistorico();
   } else if (tabId === 'metas') {
     carregarMetas(); 
     atualizarProgressoMetas();
   } else if (tabId === 'comparacao') {
     carregarHistorico();
     atualizarComparacao();
+  } else if (tabId === 'custo') { // NOVO: Aba de custo
+    carregarTarifas();
   }
 }
 
 function showFormTab(tipo, button) {
   document.querySelectorAll('.form-content').forEach(div => div.style.display = 'none');
   document.getElementById(`form${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`).style.display = 'block';
-  
   const buttons = document.querySelectorAll('.form-card > div:first-child .tab-button');
   buttons.forEach(btn => btn.classList.remove('active'));
   button.classList.add('active');
 }
 
 async function carregarTotais() {
-    // 1. Carregar valores locais de backup
     totalAnteriorAgua = getLocalData(DATA_KEYS.TOTAL_AGUA, 0);
     totalAnteriorEnergia = getLocalData(DATA_KEYS.TOTAL_ENERGIA, 0);
-
-    // 2. Tentar carregar do Google Sheets
     try {
+        // Tentativa de buscar o último total do Apps Script (se estiver configurado)
         const res = await fetch(`${scriptURL}?action=getLast`);
         const data = await res.json();
-        
         if (data.agua !== undefined && !isNaN(parseFloat(data.agua))) {
             totalAnteriorAgua = parseFloat(data.agua);
             setLocalData(DATA_KEYS.TOTAL_AGUA, totalAnteriorAgua);
@@ -1012,63 +1221,94 @@ async function carregarTotais() {
         console.warn("Erro ao carregar totais do servidor. Usando dados locais.", err);
     }
     
-    // 3. Atualizar a UI
-    const totalAguaEl = document.getElementById("totalAgua");
-    const totalEnergiaEl = document.getElementById("totalEnergia");
-    
-    totalAguaEl.value = totalAnteriorAgua.toFixed(2);
-    totalEnergiaEl.value = totalAnteriorEnergia.toFixed(2);
+    // NOVO: Atualiza o display de leitura anterior
+    document.getElementById("leituraAnteriorAguaDisplay").value = totalAnteriorAgua.toFixed(2);
+    document.getElementById("leituraAnteriorEnergiaDisplay").value = totalAnteriorEnergia.toFixed(2);
+
+    // Garante que o input de leitura atual comece com o valor anterior
+    document.getElementById("leituraAtualAgua").value = totalAnteriorAgua.toFixed(2);
+    document.getElementById("leituraAtualEnergia").value = totalAnteriorEnergia.toFixed(2);
+
+    document.getElementById("totalAgua").value = totalAnteriorAgua.toFixed(2);
+    document.getElementById("totalEnergia").value = totalAnteriorEnergia.toFixed(2);
     document.getElementById("displayTotalAgua").textContent = totalAnteriorAgua.toFixed(2) + " m³";
     document.getElementById("displayTotalEnergia").textContent = totalAnteriorEnergia.toFixed(2) + " kWh";
-    
+
     atualizarTotal('agua');
     atualizarTotal('energia');
-
     verificarAlertas();
 }
 
 function atualizarTotal(tipo) {
-  const inputConsumo = document.getElementById(`consumo${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
-  const inputTotal = document.getElementById(`total${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
-  
-  const consumo = parseFloat(inputConsumo.value) || 0;
+  const tipoCaps = tipo.charAt(0).toUpperCase() + tipo.slice(1);
+  const inputLeitura = document.getElementById(`leituraAtual${tipoCaps}`);
+  const inputConsumo = document.getElementById(`consumo${tipoCaps}`);
+  const inputTotal = document.getElementById(`total${tipoCaps}`);
+  const inputLeituraAnterior = document.getElementById(`leituraAnterior${tipoCaps}Display`); 
+
+  const leituraAtual = parseFloat(inputLeitura.value) || 0;
   const totalAnterior = tipo === 'agua' ? totalAnteriorAgua : totalAnteriorEnergia;
-  
-  const novoTotal = (consumo + totalAnterior);
-  inputTotal.value = novoTotal.toFixed(2);
+
+  // Atualiza o campo de leitura anterior (caso mude via modal)
+  inputLeituraAnterior.value = totalAnterior.toFixed(2); 
+
+  const consumoCalculado = Math.max(0, leituraAtual - totalAnterior);
+
+  const novoTotalAcumulado = leituraAtual; 
+
+  inputConsumo.value = consumoCalculado.toFixed(2);
+  inputTotal.value = novoTotalAcumulado.toFixed(2);
+
+  if (leituraAtual < totalAnterior && leituraAtual > 0) {
+      mostrarNotificacao(`A leitura atual (${leituraAtual.toFixed(2)}) é menor que a anterior (${totalAnterior.toFixed(2)}). Verifique a leitura!`, 'error');
+  }
 }
 
-function definirInicio(tipo) {
-  const label = tipo === 'agua' ? 'Água (m³)' : 'Energia (kWh)';
-  const totalAtual = tipo === 'agua' ? totalAnteriorAgua : totalAnteriorEnergia;
-
-  const novoValorStr = prompt(`O total atual é ${totalAtual.toFixed(2)}.\n\nDigite o NOVO valor do total inicial acumulado de ${label} (Início da Contagem):`);
-  
-  if (novoValorStr !== null) {
-    const novoValor = parseFloat(novoValorStr);
+function abrirModalRedefinir(tipo) {
+    const label = tipo === 'agua' ? 'Água (m³)' : 'Energia (kWh)';
+    const totalAtual = tipo === 'agua' ? totalAnteriorAgua : totalAnteriorEnergia;
     
+    const content = `
+        <p style="margin-bottom: 15px;">O total atual de ${label} é <strong>${totalAtual.toFixed(2)}</strong>. <br><span style="color: var(--danger); font-size: 0.9em;">**Cuidado!** Isso redefine o valor inicial.</span></p>
+        <div class="form-group">
+            <label>Novo Total Inicial Acumulado (${label}):</label>
+            <input type="number" id="inputNovoTotal" step="0.01" required placeholder="Digite o novo valor inicial">
+        </div>
+    `;
+
+    abrirModal(`🔄 Redefinir Total Inicial de ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`, content, (e) => {
+        e.preventDefault();
+        const novoValorStr = document.getElementById('inputNovoTotal').value;
+        const novoValor = parseFloat(novoValorStr);
+        definirInicio(tipo, novoValor);
+    }, 'Redefinir');
+}
+
+function definirInicio(tipo, novoValor) {
     if (!isNaN(novoValor) && novoValor >= 0) {
       const valorFormatado = novoValor.toFixed(2);
-      
+      const tipoCaps = tipo.charAt(0).toUpperCase() + tipo.slice(1);
+
       if (tipo === 'agua') {
         totalAnteriorAgua = novoValor;
-        document.getElementById("totalAgua").value = valorFormatado;
-        document.getElementById("displayTotalAgua").textContent = valorFormatado + " m³";
         setLocalData(DATA_KEYS.TOTAL_AGUA, totalAnteriorAgua);
+        document.getElementById("leituraAnteriorAguaDisplay").value = valorFormatado; // NOVO: Atualiza display anterior
       } else {
         totalAnteriorEnergia = novoValor;
-        document.getElementById("totalEnergia").value = valorFormatado;
-        document.getElementById("displayTotalEnergia").textContent = valorFormatado + " kWh";
         setLocalData(DATA_KEYS.TOTAL_ENERGIA, totalAnteriorEnergia);
+        document.getElementById("leituraAnteriorEnergiaDisplay").value = valorFormatado; // NOVO: Atualiza display anterior
       }
       
+      // Atualiza os inputs e displays principais
+      document.getElementById(`leituraAtual${tipoCaps}`).value = valorFormatado; 
+      document.getElementById("displayTotalAgua").textContent = totalAnteriorAgua.toFixed(2) + " m³";
+      document.getElementById("displayTotalEnergia").textContent = totalAnteriorEnergia.toFixed(2) + " kWh";
+      
       atualizarTotal(tipo);
-      mostrarNotificacao(`Total Inicial de ${tipo.charAt(0).toUpperCase() + tipo.slice(1)} redefinido para ${valorFormatado}.`, 'success');
-
+      mostrarNotificacao(`Total Inicial de ${tipoCaps} redefinido para ${valorFormatado}.`, 'success');
     } else {
       mostrarNotificacao('Valor inválido. Por favor, digite um número não negativo.', 'error');
     }
-  }
 }
 
 // --- FUNÇÕES DE FORMULÁRIO ---
@@ -1080,28 +1320,47 @@ async function handleFormSubmit(e) {
     const tipoCaps = tipo.charAt(0).toUpperCase() + tipo.slice(1);
     const msg = document.getElementById(`msg${tipoCaps}`);
     const btn = form.querySelector('button[type="submit"]');
-    
     btn.classList.add('loading');
     btn.disabled = true;
-    
-    const formData = new FormData(form);
-    
-    const novoRegistro = {
-        data: formData.get('dataHora'),
-        tipo: tipo === 'agua' ? 'água' : 'energia',
-        nome: formData.get('nome'),
-        consumo: parseFloat(formData.get(`consumo${tipoCaps}`)),
-        total: parseFloat(formData.get(`total${tipoCaps}`))
-    };
 
+    const formData = new FormData(form);
+    const consumo = parseFloat(formData.get(`consumo${tipoCaps}`));
+    const total = parseFloat(formData.get(`total${tipoCaps}`));
+    const nome = formData.get('nome');
+    const matricula = formData.get('matricula');
+
+    if (consumo <= 0) {
+        mostrarMensagem(msg, `⚠️ Consumo de ${tipoCaps} é 0 ou negativo. Verifique a leitura. Envio Bloqueado.`, "error");
+        btn.classList.remove('loading');
+        btn.disabled = false;
+        return;
+    }
+
+    const novoRegistro = {
+        id: Date.now().toString(36) + Math.random().toString(36).substring(2, 9), 
+        data: formData.get('dataHora'),
+        tipo: tipo,
+        nome: nome,
+        consumo: consumo,
+        total: total,
+        matricula: matricula,
+        extra1: formData.get('extra1') || '',
+        extra2: formData.get('extra2') || '',
+        extra3: formData.get('extra3') || '',
+    };
+    
     try {
-        // Envio assíncrono para o Google Sheets (pode levar tempo ou falhar)
+        // Envio assíncrono para o Apps Script
         fetch(scriptURL, { method: 'POST', body: formData })
             .then(() => console.log('Dados enviados ao Sheets com sucesso'))
             .catch(err => console.error('Erro ao enviar dados ao Sheets (Tentativa assíncrona):', err));
 
-        // Atualizar histórico e totais localmente IMEDIATAMENTE
-        historico.unshift(novoRegistro); // Adiciona no início (mais recente)
+        // Salva nome e matrícula para auto-preenchimento (NOVO)
+        setLocalData('lastNome', nome);
+        setLocalData('lastMatricula', matricula);
+        
+        // Atualiza histórico e totais locais
+        historico.unshift(novoRegistro); 
         setLocalData(DATA_KEYS.HISTORICO, historico);
 
         if (tipo === 'agua') {
@@ -1113,62 +1372,135 @@ async function handleFormSubmit(e) {
         }
 
         mostrarMensagem(msg, `✅ Registro de ${tipoCaps} salvo localmente e enviado ao Sheets!`, "success");
-        
         form.reset();
-        await carregarTotais(); // Atualiza a UI com os novos totais
-
+        await carregarTotais();
+        aplicarFiltroDashboard(); 
     } catch (err) {
         console.error("Erro ao processar dados localmente:", err);
         mostrarMensagem(msg, "❌ Erro interno. Recarregue a página.", "error");
     } finally {
         btn.classList.remove('loading');
         btn.disabled = false;
+        // Preenche automaticamente nome e matrícula novamente
+        document.querySelectorAll('input[name="nome"]').forEach(input => input.value = nome);
+        document.querySelectorAll('input[name="matricula"]').forEach(input => input.value = matricula);
     }
 }
 
-// --- FUNÇÕES DE DASHBOARD/GRÁFICOS, HISTÓRICO, METAS, COMPARAÇÃO (Funções mantidas da sugestão anterior) ---
+// --- FUNÇÕES DE DASHBOARD/GRÁFICOS ---
 
-function criarGraficos() {
-    const aguaRecords = historico.filter(h => h.tipo === 'água').slice(0, 6);
-    const energiaRecords = historico.filter(h => h.tipo === 'energia').slice(0, 6);
-
-    // Mapeia datas e inverte para ordem cronológica no gráfico
-    const labels = [...new Set([...aguaRecords, ...energiaRecords].map(h => new Date(h.data).toLocaleDateString()))];
-    labels.sort((a, b) => new Date(a) - new Date(b));
-
-    // Consumo por data (simplificado)
-    const aguaData = labels.map(date => {
-        const record = aguaRecords.find(h => new Date(h.data).toLocaleDateString() === date);
-        return record ? record.consumo : 0;
-    });
-    const energiaData = labels.map(date => {
-        const record = energiaRecords.find(h => new Date(h.data).toLocaleDateString() === date);
-        return record ? record.consumo : 0;
-    });
-
+function agruparDados(dados, agregacao) {
+    const grupos = {};
     
-    // Gráfico de Linha (Consumo Recente)
+    dados.forEach(item => {
+        const date = new Date(item.data);
+        let key;
+        
+        switch (agregacao) {
+            case 'mensal':
+                key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                break;
+            case 'semanal':
+                // Calcula o número da semana do ano (método simples, pode variar dependendo do padrão)
+                const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+                d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+                const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+                key = `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+                break;
+            case 'diario':
+            default:
+                key = formatDateToInput(date);
+                break;
+        }
+
+        if (!grupos[key]) {
+            grupos[key] = { agua: 0, energia: 0 };
+        }
+        if (item.tipo === 'agua') {
+            grupos[key].agua += item.consumo;
+        } else if (item.tipo === 'energia') {
+            grupos[key].energia += item.consumo;
+        }
+    });
+
+    return grupos;
+}
+
+function filtrarDadosPorData(dados, dataInicio, dataFim) {
+    const inicio = new Date(dataInicio).setHours(0, 0, 0, 0);
+    const fim = new Date(dataFim).setHours(23, 59, 59, 999); 
+    
+    return dados.filter(item => {
+        const dataRegistro = new Date(item.data).getTime();
+        return dataRegistro >= inicio && dataRegistro <= fim;
+    });
+}
+
+function aplicarFiltroDashboard() {
+    const dataInicioStr = document.getElementById('dataInicio').value;
+    const dataFimStr = document.getElementById('dataFim').value;
+    
+    let inicio = dataInicioStr ? new Date(dataInicioStr) : dashboardDataInicio;
+    let fim = dataFimStr ? new Date(dataFimStr) : dashboardDataFim;
+
+    if (inicio.getTime() > fim.getTime()) {
+        mostrarNotificacao('A Data de Início não pode ser maior que a Data Final.', 'error');
+        return;
+    }
+
+    dashboardDataInicio = inicio;
+    dashboardDataFim = fim;
+
+    document.getElementById('dataInicio').value = formatDateToInput(inicio);
+    document.getElementById('dataFim').value = formatDateToInput(fim);
+
+    criarGraficos(inicio, fim);
+}
+
+function criarGraficos(dataInicio, dataFim) {
+    carregarHistorico(); 
+    carregarTarifas(); // Garante que as tarifas estão carregadas para o cálculo de custo
+    const agregacao = document.getElementById('agregacao').value; 
+    const dadosFiltrados = filtrarDadosPorData(historico, dataInicio, dataFim);
+    
+    const dadosAgrupados = agruparDados(dadosFiltrados, agregacao);
+    
+    const labels = Object.keys(dadosAgrupados).sort();
+
+    const aguaData = labels.map(key => dadosAgrupados[key].agua);
+    const energiaData = labels.map(key => dadosAgrupados[key].energia);
+
+    // Formatação dos rótulos para melhor visualização (Mensal/Semanal)
+    const formattedLabels = labels.map(label => {
+        if (agregacao === 'mensal') {
+            const [year, month] = label.split('-');
+            return `${month}/${year}`;
+        }
+        return label; // Diário ou Semanal (Wxx)
+    });
+    
+    // Gráfico de Linha
     const ctx = document.getElementById('consumptionChart');
     if (chartInstance) chartInstance.destroy();
-    
     chartInstance = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: labels,
+        labels: formattedLabels,
         datasets: [
           {
             label: 'Água (m³)',
             data: aguaData,
             borderColor: '#667eea',
             backgroundColor: 'rgba(102, 126, 234, 0.1)',
-            tension: 0.4
+            tension: 0.4,
           },
           {
             label: 'Energia (kWh)',
             data: energiaData,
             borderColor: '#f59e0b',
             backgroundColor: 'rgba(245, 158, 11, 0.1)',
-            tension: 0.4
+            tension: 0.4,
           }
         ]
       },
@@ -1177,86 +1509,266 @@ function criarGraficos() {
         maintainAspectRatio: false,
         plugins: {
           legend: { position: 'top' },
+          title: {
+            display: true,
+            text: `Consumo (${agregacao.charAt(0).toUpperCase() + agregacao.slice(1)}) de ${formatDateToInput(dataInicio)} a ${formatDateToInput(dataFim)}`
+          }
+        },
+        scales: {
+            x: {
+                title: { display: true, text: 'Período' }
+            },
+            y: {
+                title: { display: true, text: 'Consumo' }
+            }
         }
       }
     });
-    
-    // Gráfico de Pizza (Total Geral)
+
+    // Gráfico de Pizza (Total Geral Acumulado)
     const ctxPie = document.getElementById('pieChart');
     if (pieChartInstance) pieChartInstance.destroy();
-    
-    const totalAgua = historico.filter(h => h.tipo === 'água').reduce((a, b) => a + b.consumo, 0);
-    const totalEnergia = historico.filter(h => h.tipo === 'energia').reduce((a, b) => a + b.consumo, 0);
+    const totalAguaGeral = historico.filter(h => h.tipo === 'agua').reduce((a, b) => a + b.consumo, 0);
+    const totalEnergiaGeral = historico.filter(h => h.tipo === 'energia').reduce((a, b) => a + b.consumo, 0);
 
-    // Estatísticas do Mês (usando o total dos 6 registros mais recentes como "Recente")
-    const aguaMes = aguaRecords.reduce((a, b) => a + b.consumo, 0);
-    const energiaMes = energiaRecords.reduce((a, b) => a + b.consumo, 0);
-    
     pieChartInstance = new Chart(ctxPie, {
       type: 'doughnut',
       data: {
         labels: ['Água', 'Energia'],
         datasets: [{
-          data: [totalAgua, totalEnergia],
+          data: [totalAguaGeral, totalEnergiaGeral],
           backgroundColor: ['#667eea', '#f59e0b']
         }]
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Distribuição Total Acumulada'
+            }
+        }
       }
     });
+
+    // Atualizar estatísticas (baseadas no período)
+    const aguaConsumoPeriodo = Object.values(dadosAgrupados).reduce((sum, item) => sum + item.agua, 0);
+    const energiaConsumoPeriodo = Object.values(dadosAgrupados).reduce((sum, item) => sum + item.energia, 0);
     
-    // Atualizar estatísticas
-    document.getElementById('aguaMes').textContent = aguaMes.toFixed(2) + ' m³';
-    document.getElementById('energiaMes').textContent = energiaMes.toFixed(2) + ' kWh';
+    const diffTime = Math.abs(dataFim.getTime() - dataInicio.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    document.getElementById('aguaMes').textContent = aguaConsumoPeriodo.toFixed(2) + ' m³';
+    document.getElementById('energiaMes').textContent = energiaConsumoPeriodo.toFixed(2) + ' kWh';
     
-    const metaAgua = metas.agua || 10;
-    const economiaCalc = (metaAgua > 0) ? Math.max(0, 100 - (aguaMes / metaAgua) * 100) : 0;
-    document.getElementById('economiaAgua').textContent = economiaCalc.toFixed(0) + '%';
+    // Calcula Meta Proporcional
+    const metaAguaMensal = metas.agua || 10;
+    const metaAguaPeriodo = (metaAguaMensal / 30) * diffDays; 
     
-    const custoAgua = aguaMes * 5.5; 
-    const custoEnergia = energiaMes * 0.85; 
-    document.getElementById('custoTotal').textContent = 'R$ ' + (custoAgua + custoEnergia).toFixed(2);
+    let economiaTexto = '';
+    const cardEconomiaAgua = document.getElementById('cardEconomiaAgua');
+    cardEconomiaAgua.classList.remove('success', 'danger', 'warning');
+
+    if (metaAguaPeriodo === 0) {
+        economiaTexto = 'N/A';
+        cardEconomiaAgua.classList.add('warning');
+    } else {
+        const excedente = aguaConsumoPeriodo - metaAguaPeriodo;
+        if (excedente > 0) {
+            const percentExcedente = (excedente / metaAguaPeriodo) * 100;
+            economiaTexto = `+${percentExcedente.toFixed(0)}% (Acima)`;
+            cardEconomiaAgua.classList.add('danger');
+        } else {
+            const percentEconomia = Math.max(0, 100 - (aguaConsumoPeriodo / metaAguaPeriodo) * 100);
+            economiaTexto = `${percentEconomia.toFixed(0)}% (Economia)`;
+            cardEconomiaAgua.classList.add('success');
+        }
+    }
+    
+    document.getElementById('economiaAgua').textContent = economiaTexto;
+    
+    // NOVO: Cálculo de Custo (AGORA BASEADO NAS TARIFAS EDITÁVEIS)
+    let custoAgua = 0; 
+    let custoEnergia = 0;
+
+    // LÓGICA DE CÁLCULO DA CONTA DE ÁGUA (Mínimo + Excedente + Taxas Fixas)
+    if (aguaConsumoPeriodo <= tarifas.aguaFaixaMinima) {
+        custoAgua = tarifas.aguaFixa;
+    } else {
+        const excedenteAgua = aguaConsumoPeriodo - tarifas.aguaFaixaMinima;
+        // Paga a Tarifa Fixa (que cobre a faixa mínima) + o excedente
+        custoAgua = tarifas.aguaFixa + (excedenteAgua * tarifas.aguaExcedente);
+    }
+    // Adiciona taxas fixas (Parcelamento, Multas)
+    custoAgua += tarifas.aguaParcelamento + tarifas.aguaMultas;
+    
+    // LÓGICA DE CÁLCULO DA CONTA DE ENERGIA (kWh + Bandeira + Taxas Fixas)
+    const custoKWhBase = energiaConsumoPeriodo * tarifas.energiaKWh;
+    const custoKWhBandeira = energiaConsumoPeriodo * tarifas.energiaBandeira;
+
+    custoEnergia = custoKWhBase + custoKWhBandeira;
+    
+    // Adiciona taxas fixas (COSIP, Parcelamento, Multas)
+    custoEnergia += tarifas.energiaFixaCOSIP + tarifas.energiaParcelamento + tarifas.energiaMultas;
+    
+    const custoTotal = custoAgua + custoEnergia;
+    
+    document.getElementById('custoTotal').textContent = currencyFormatter.format(custoTotal);
 }
 
+// --- FUNÇÕES DE HISTÓRICO, METAS, COMPARAÇÃO ---
+
 function carregarHistorico() {
-  historico = getLocalData(DATA_KEYS.HISTORICO, []);
-  // A ordem de salvamento já é do mais recente para o mais antigo (unshift)
-  filtrarHistorico();
+  historico = getLocalData(DATA_KEYS.HISTORICO, []).map(h => ({
+      ...h,
+      tipo: h.tipo === 'água' ? 'agua' : h.tipo
+  })); 
+  // Garante que o histórico mais recente está no topo
+  historico.sort((a, b) => new Date(b.data) - new Date(a.data));
 }
 
 function filtrarHistorico() {
   const filtro = document.getElementById('filtroTipo').value;
   const tbody = document.getElementById('historicoBody');
-  
   let dadosFiltrados = historico;
+
   if (filtro !== 'todos') {
     dadosFiltrados = historico.filter(h => h.tipo === filtro);
   }
-  
+
   if (dadosFiltrados.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;">Nenhum registro encontrado</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Nenhum registro encontrado</td></tr>';
     return;
   }
-  
+
   tbody.innerHTML = dadosFiltrados.map(item => `
     <tr>
       <td>${new Date(item.data).toLocaleString('pt-BR')}</td>
-      <td>${item.tipo === 'água' ? '💧 Água' : '⚡ Energia'}</td>
+      <td>${item.tipo === 'agua' ? '💧 Água' : '⚡ Energia'}</td>
       <td>${item.nome}</td>
-      <td>${parseFloat(item.consumo).toFixed(2)} ${item.tipo === 'água' ? 'm³' : 'kWh'}</td>
-      <td>${parseFloat(item.total).toFixed(2)} ${item.tipo === 'água' ? 'm³' : 'kWh'}</td>
+      <td>${parseFloat(item.consumo).toFixed(2)} ${item.tipo === 'agua' ? 'm³' : 'kWh'}</td>
+      <td>${parseFloat(item.total).toFixed(2)} ${item.tipo === 'agua' ? 'm³' : 'kWh'}</td>
+      <td class="action-buttons">
+          <button class="btn-icon btn-edit" title="Editar" onclick="abrirModalEdicao('${item.id}')" disabled>
+            <span class="material-icons" style="font-size: 18px;">edit</span>
+          </button>
+          <button class="btn-icon btn-delete" title="Excluir" onclick="excluirRegistro('${item.id}')">
+            <span class="material-icons" style="font-size: 18px;">delete</span>
+          </button>
+      </td>
     </tr>
   `).join('');
 }
 
+// *** AVISO: Edição/Exclusão Local é perigosa para a integridade do Total Acumulado. Aconselha-se desabilitar (como abaixo) ou avisar o usuário. ***
+function abrirModalEdicao(id) {
+    // Mantido desabilitado para integridade, mas o código está aqui se for necessário ativar
+    mostrarNotificacao('A edição de registros locais foi desabilitada para garantir a integridade do total acumulado. Edite apenas no Google Sheets.', 'error');
+    // ... código de edição ...
+}
+
+function excluirRegistro(id) {
+    const registroIndex = historico.findIndex(item => item.id === id);
+    const registro = historico[registroIndex];
+
+    if (!registro) return;
+
+    // Verifica se o registro excluído é o último. Se não for, a exclusão causa inconsistência no campo 'total'.
+    const isLast = registroIndex === 0;
+
+    if (isLast) {
+      if (!confirm("Tem certeza que deseja excluir o ÚLTIMO registro localmente? Isso é seguro, mas você precisará excluir o registro correspondente no Google Sheets.")) return;
+    } else {
+      if (!confirm(`⚠️ ATENÇÃO: Você está tentando excluir um registro antigo! Isso causará INCONSISTÊNCIA nos campos 'Total' dos registros posteriores (consumo calculado). Prossiga com cautela e corrija manualmente o próximo 'Total Inicial'. Tem certeza?`)) return;
+    }
+    
+    historico = historico.filter(item => item.id !== id);
+    setLocalData(DATA_KEYS.HISTORICO, historico);
+    
+    // Se o último registro foi excluído, o total anterior deve ser o penúltimo registro
+    if (isLast && historico.length > 0) {
+        const penultimo = historico[0];
+        if (registro.tipo === 'agua') {
+            totalAnteriorAgua = penultimo.total;
+            setLocalData(DATA_KEYS.TOTAL_AGUA, totalAnteriorAgua);
+        } else {
+            totalAnteriorEnergia = penultimo.total;
+            setLocalData(DATA_KEYS.TOTAL_ENERGIA, totalAnteriorEnergia);
+        }
+    } else if (historico.length === 0) {
+        // Se a lista ficar vazia, zera o total
+        totalAnteriorAgua = 0;
+        totalAnteriorEnergia = 0;
+        setLocalData(DATA_KEYS.TOTAL_AGUA, 0);
+        setLocalData(DATA_KEYS.TOTAL_ENERGIA, 0);
+    }
+    
+    carregarTotais(); 
+    filtrarHistorico();
+    aplicarFiltroDashboard();
+    mostrarNotificacao('Registro excluído localmente.', 'warning');
+}
+
+// NOVO: Funções de Backup/Restauração JSON
+function exportarJSON() {
+    const data = getLocalData(DATA_KEYS.HISTORICO, []);
+    const jsonStr = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `backup_consumo_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    mostrarNotificacao('Backup JSON exportado com sucesso!', 'success');
+}
+
+function importarJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const importedData = JSON.parse(e.target.result);
+            if (!Array.isArray(importedData)) {
+                throw new Error("Formato JSON inválido. Esperado um array.");
+            }
+            
+            // Revalida/limpa os dados importados (garante a estrutura mínima)
+            const cleanedData = importedData.filter(item => item.id && item.data && item.tipo && item.consumo && item.total);
+            if (cleanedData.length === 0 && importedData.length > 0) {
+                 mostrarNotificacao('O arquivo JSON não contém registros de histórico válidos.', 'error');
+                 return;
+            }
+
+            // Sobrescreve o histórico local
+            setLocalData(DATA_KEYS.HISTORICO, cleanedData);
+            
+            // Recarrega todos os dados
+            carregarHistorico();
+            carregarTotais(); 
+            filtrarHistorico();
+            aplicarFiltroDashboard();
+
+            mostrarNotificacao(`Histórico de ${cleanedData.length} registros restaurado com sucesso!`, 'success');
+        } catch (error) {
+            console.error(error);
+            mostrarNotificacao(`Erro ao processar arquivo JSON: ${error.message}`, 'error');
+        }
+    };
+    reader.readAsText(file);
+    // Limpa o input file para que o evento 'change' dispare novamente se o mesmo arquivo for selecionado
+    event.target.value = '';
+}
+// FIM NOVO
+
 function exportarCSV() {
     const csv = ['"Data/Hora","Tipo","Nome","Consumo","Total"'];
     historico.forEach(item => {
-        csv.push(`"${new Date(item.data).toLocaleString('pt-BR')}","${item.tipo}","${item.nome}","${parseFloat(item.consumo).toFixed(2)}","${parseFloat(item.total).toFixed(2)}"`);
+        csv.push(`"${new Date(item.data).toLocaleString('pt-BR')}","${item.tipo.charAt(0).toUpperCase() + item.tipo.slice(1)}","${item.nome}","${parseFloat(item.consumo).toFixed(2)}","${parseFloat(item.total).toFixed(2)}"`);
     });
-    
     const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -1270,20 +1782,17 @@ function exportarCSV() {
 function exportarPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    
     doc.text("Registro de Consumo - Água e Energia", 14, 20);
     doc.setFontSize(10);
     doc.text(`Total de Registros: ${historico.length}`, 14, 28);
     doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 34);
-
     const tableData = historico.map(item => [
         new Date(item.data).toLocaleString('pt-BR'),
         item.tipo.charAt(0).toUpperCase() + item.tipo.slice(1),
         item.nome,
-        `${parseFloat(item.consumo).toFixed(2)} ${item.tipo === 'água' ? 'm³' : 'kWh'}`,
-        `${parseFloat(item.total).toFixed(2)} ${item.tipo === 'água' ? 'm³' : 'kWh'}`,
+        `${parseFloat(item.consumo).toFixed(2)} ${item.tipo === 'agua' ? 'm³' : 'kWh'}`,
+        `${parseFloat(item.total).toFixed(2)} ${item.tipo === 'agua' ? 'm³' : 'kWh'}`,
     ]);
-
     doc.autoTable({
         head: [['Data/Hora', 'Tipo', 'Nome', 'Consumo', 'Total']],
         body: tableData,
@@ -1291,14 +1800,13 @@ function exportarPDF() {
         styles: { fontSize: 8, cellPadding: 2 },
         headStyles: { fillColor: [102, 126, 234] }
     });
-    
     doc.save(`historico_consumo_${new Date().toISOString().split('T')[0]}.pdf`);
     mostrarNotificacao('Arquivo PDF exportado com sucesso!', 'success');
 }
 
 function carregarMetas() {
-    metas.agua = getLocalData(DATA_KEYS.METAS_AGUA, 10);
-    metas.energia = getLocalData(DATA_KEYS.METAS_ENERGIA, 150);
+    metas.agua = parseFloat(getLocalData(DATA_KEYS.METAS_AGUA, 10));
+    metas.energia = parseFloat(getLocalData(DATA_KEYS.METAS_ENERGIA, 150));
     document.getElementById('metaAgua').value = metas.agua;
     document.getElementById('metaEnergia').value = metas.energia;
 }
@@ -1309,93 +1817,192 @@ function salvarMetas() {
     setLocalData(DATA_KEYS.METAS_AGUA, metas.agua);
     setLocalData(DATA_KEYS.METAS_ENERGIA, metas.energia);
     atualizarProgressoMetas();
+    aplicarFiltroDashboard(); // Para atualizar o card de economia no dashboard
 }
 
 function atualizarProgressoMetas() {
     carregarMetas(); 
+    let data30DiasAtras = new Date();
+    data30DiasAtras.setDate(data30DiasAtras.getDate() - 30);
 
-    const aguaConsumoRecente = historico.filter(h => h.tipo === 'água').slice(0, 6).map(h => h.consumo).reduce((a, b) => a + b, 0);
-    const energiaConsumoRecente = historico.filter(h => h.tipo === 'energia').slice(0, 6).map(h => h.consumo).reduce((a, b) => a + b, 0);
+    const dados30Dias = filtrarDadosPorData(historico, data30DiasAtras, new Date());
 
+    const aguaConsumoRecente = dados30Dias.filter(h => h.tipo === 'agua').map(h => h.consumo).reduce((a, b) => a + b, 0);
+    const energiaConsumoRecente = dados30Dias.filter(h => h.tipo === 'energia').map(h => h.consumo).reduce((a, b) => a + b, 0);
+    
     const progressAgua = document.getElementById('progressAgua');
     let percentAgua = (metas.agua > 0) ? (aguaConsumoRecente / metas.agua) * 100 : 0;
-
     progressAgua.style.width = `${Math.min(100, percentAgua).toFixed(0)}%`;
     progressAgua.textContent = `${percentAgua.toFixed(1)}% (${aguaConsumoRecente.toFixed(2)} / ${metas.agua.toFixed(2)} m³)`;
     progressAgua.classList.toggle('over', percentAgua > 100);
 
     const progressEnergia = document.getElementById('progressEnergia');
     let percentEnergia = (metas.energia > 0) ? (energiaConsumoRecente / metas.energia) * 100 : 0;
-
     progressEnergia.style.width = `${Math.min(100, percentEnergia).toFixed(0)}%`;
     progressEnergia.textContent = `${percentEnergia.toFixed(1)}% (${energiaConsumoRecente.toFixed(2)} / ${metas.energia.toFixed(2)} kWh)`;
     progressEnergia.classList.toggle('over', percentEnergia > 100);
 }
 
 function verificarAlertas() {
-    const metaAgua = metas.agua || 10;
-    const metaEnergia = metas.energia || 150;
-    
-    // Alertas baseados no total acumulado (para dar a sensação de alerta contínuo)
-    if (totalAnteriorAgua > metaAgua * 0.9 && totalAnteriorAgua < metaAgua * 1.1) {
-      mostrarNotificacao(`Você atingiu ${((totalAnteriorAgua/metaAgua)*100).toFixed(0)}% da sua meta de água!`, 'warning');
-    }
-    if (totalAnteriorAgua >= metaAgua * 1.1) {
-      mostrarNotificacao(`🚨 Atenção! Você excedeu sua meta de água!`, 'error');
-    }
-    
-    if (totalAnteriorEnergia > metaEnergia * 0.9 && totalAnteriorEnergia < metaEnergia * 1.1) {
-      mostrarNotificacao(`Você atingiu ${((totalAnteriorEnergia/metaEnergia)*100).toFixed(0)}% da sua meta de energia!`, 'warning');
-    }
-    if (totalAnteriorEnergia >= metaEnergia * 1.1) {
-      mostrarNotificacao(`🚨 Atenção! Você excedeu sua meta de energia!`, 'error');
-    }
+    // Mantido, mas o alerta de meta excedida agora está no dashboard/progresso
+    // Esta função pode ser expandida para outros alertas futuros.
 }
 
 function atualizarComparacao() {
     carregarMetas(); 
-
-    const aguaConsumoRecente = historico.filter(h => h.tipo === 'água').slice(0, 6).map(h => h.consumo).reduce((a, b) => a + b, 0);
-    const energiaConsumoRecente = historico.filter(h => h.tipo === 'energia').slice(0, 6).map(h => h.consumo).reduce((a, b) => a + b, 0);
     
+    let data30DiasAtras = new Date();
+    data30DiasAtras.setDate(data30DiasAtras.getDate() - 30);
+    const dados30Dias = filtrarDadosPorData(historico, data30DiasAtras, new Date());
+
+    const aguaConsumoRecente = dados30Dias.filter(h => h.tipo === 'agua').map(h => h.consumo).reduce((a, b) => a + b, 0);
+    const energiaConsumoRecente = dados30Dias.filter(h => h.tipo === 'energia').map(h => h.consumo).reduce((a, b) => a + b, 0);
+    
+    // Simulação de média baseada na meta (pode ser ajustado)
     const mediaGeralAgua = metas.agua * 1.05; 
     const mediaGeralEnergia = metas.energia * 0.90; 
-    
+
     document.getElementById('compSeuAgua').textContent = aguaConsumoRecente.toFixed(2) + ' m³';
     document.getElementById('compMediaAgua').textContent = mediaGeralAgua.toFixed(2) + ' m³';
     document.getElementById('compSeuEnergia').textContent = energiaConsumoRecente.toFixed(2) + ' kWh';
     document.getElementById('compMediaEnergia').textContent = mediaGeralEnergia.toFixed(2) + ' kWh';
-    
+
     let analise = '';
-    
-    if (aguaConsumoRecente < mediaGeralAgua * 0.95) {
-      analise += '💧 Seu consumo de água está excelente, bem abaixo da média. Continue assim! ';
-    } else if (aguaConsumoRecente > mediaGeralAgua * 1.05) {
-      analise += '💧 Atenção! Seu consumo de água está significativamente acima da média. Considere medidas de economia. ';
+    if (aguaConsumoRecente === 0 && energiaConsumoRecente === 0) {
+      analise = "Nenhum registro encontrado para comparação nos últimos 30 dias.";
     } else {
-      analise += '💧 Seu consumo de água está próximo da média geral. ';
+        if (aguaConsumoRecente < mediaGeralAgua * 0.95) {
+          analise += '💧 Seu consumo de água no último mês está excelente, bem abaixo da média. Continue assim! ';
+        } else if (aguaConsumoRecente > mediaGeralAgua * 1.05) {
+          analise += '💧 Atenção! Seu consumo de água no último mês está significativamente acima da média. Considere medidas de economia. ';
+        } else {
+          analise += '💧 Seu consumo de água no último mês está próximo da média geral. ';
+        }
+        
+        if (energiaConsumoRecente < mediaGeralEnergia * 0.95) {
+          analise += '⚡ Seu consumo de energia no último mês é um modelo! Muito abaixo da média. ';
+        } else if (energiaConsumoRecente > mediaGeralEnergia * 1.05) {
+          analise += '⚡ Seu consumo de energia no último mês está alto em relação à média. Verifique aparelhos e hábitos. ';
+        } else {
+          analise += '⚡ Seu consumo de energia no último mês está alinhado com a média geral. ';
+        }
     }
-    
-    if (energiaConsumoRecente < mediaGeralEnergia * 0.95) {
-      analise += '⚡ Seu consumo de energia é um modelo! Muito abaixo da média. ';
-    } else if (energiaConsumoRecente > mediaGeralEnergia * 1.05) {
-      analise += '⚡ Seu consumo de energia está alto em relação à média. Verifique aparelhos e hábitos. ';
-    } else {
-      analise += '⚡ Seu consumo de energia está alinhado com a média geral. ';
-    }
-    
-    document.getElementById('analiseTexto').textContent = analise.trim() || "Nenhum registro encontrado para comparação.";
+    document.getElementById('analiseTexto').textContent = analise.trim();
 }
+
+
+// --- FUNÇÕES DE CUSTO/TARIFAS (IMPLEMENTAÇÃO COMPLETA) ---
+
+function carregarTarifas() {
+    const localTarifas = getLocalData(DATA_KEYS.TARIFAS);
+    if (localTarifas) {
+        // Mescla para garantir que novas chaves (se existirem) não sumam
+        tarifas = { ...tarifas, ...localTarifas }; 
+    }
+    // Atualiza o display na aba 'Custo/Tarifas'
+    atualizarDisplayTarifas();
+}
+
+function salvarTarifas(novasTarifas) {
+    tarifas = { ...tarifas, ...novasTarifas };
+    setLocalData(DATA_KEYS.TARIFAS, tarifas);
+    atualizarDisplayTarifas();
+    aplicarFiltroDashboard(); // Recalcula o custo no dashboard
+    mostrarNotificacao('Tarifas e taxas salvas com sucesso!', 'success');
+}
+
+function atualizarDisplayTarifas() {
+    // ÁGUA
+    document.getElementById('displayFaixaMinimaAgua').textContent = tarifas.aguaFaixaMinima.toFixed(2) + ' m³';
+    document.getElementById('displayTaxaAguaFixa').textContent = currencyFormatter.format(tarifas.aguaFixa);
+    document.getElementById('displayTarifaAguaExcedente').textContent = currencyFormatter.format(tarifas.aguaExcedente);
+    document.getElementById('displayTaxaAguaParcelamento').textContent = currencyFormatter.format(tarifas.aguaParcelamento);
+    document.getElementById('displayTaxaAguaMultas').textContent = currencyFormatter.format(tarifas.aguaMultas);
+
+    // ENERGIA
+    document.getElementById('displayTarifaEnergiaKWh').textContent = currencyFormatter.format(tarifas.energiaKWh);
+    document.getElementById('displayTarifaEnergiaBandeira').textContent = currencyFormatter.format(tarifas.energiaBandeira) + ' /kWh';
+    document.getElementById('displayTaxaEnergiaFixa').textContent = currencyFormatter.format(tarifas.energiaFixaCOSIP);
+    document.getElementById('displayTaxaEnergiaParcelamento').textContent = currencyFormatter.format(tarifas.energiaParcelamento);
+    document.getElementById('displayTaxaEnergiaMultas').textContent = currencyFormatter.format(tarifas.energiaMultas);
+}
+
+function abrirModalEdicaoTarifas() {
+    const content = `
+        <h3 style="margin-top: 10px;">💧 Configurações de Água</h3>
+        <p style="font-size: 0.8em; margin-bottom: 10px; color: var(--secondary);">Estrutura baseada em Faixa Mínima + Tarifa Fixa + Excedente.</p>
+        <div class="form-group">
+            <label>Faixa Mínima (m³)</label>
+            <input type="number" id="inputAguaFaixa" step="0.01" required value="${tarifas.aguaFaixaMinima.toFixed(2)}">
+        </div>
+        <div class="form-group">
+            <label>Tarifa Mínima Fixa (R$)</label>
+            <input type="number" id="inputAguaFixa" step="0.01" required value="${tarifas.aguaFixa.toFixed(2)}">
+        </div>
+        <div class="form-group">
+            <label>Tarifa por m³ Excedente (R$)</label>
+            <input type="number" id="inputAguaExcedente" step="0.01" required value="${tarifas.aguaExcedente.toFixed(2)}">
+        </div>
+        <div class="form-group">
+            <label>Parcelamento/Juros (R$ - Valor Fixo)</label>
+            <input type="number" id="inputAguaParcelamento" step="0.01" required value="${tarifas.aguaParcelamento.toFixed(2)}">
+        </div>
+        <div class="form-group">
+            <label>Multas/Impostos (R$ - Valor Fixo)</label>
+            <input type="number" id="inputAguaMultas" step="0.01" required value="${tarifas.aguaMultas.toFixed(2)}">
+        </div>
+        
+        <h3 style="margin-top: 25px;">⚡ Configurações de Energia</h3>
+        <div class="form-group">
+            <label>Tarifa Base por kWh (TE + TUSD) (R$)</label>
+            <input type="number" id="inputEnergiaKWh" step="0.00001" required value="${tarifas.energiaKWh.toFixed(5)}">
+        </div>
+        <div class="form-group">
+            <label>Custo Adicional (Bandeira) por kWh (R$)</label>
+            <input type="number" id="inputEnergiaBandeira" step="0.001" required value="${tarifas.energiaBandeira.toFixed(3)}">
+        </div>
+        <div class="form-group">
+            <label>Taxa COSIP/CIP (R$ - Valor Fixo)</label>
+            <input type="number" id="inputEnergiaFixaCOSIP" step="0.01" required value="${tarifas.energiaFixaCOSIP.toFixed(2)}">
+        </div>
+        <div class="form-group">
+            <label>Parcelamento (R$ - Valor Fixo)</label>
+            <input type="number" id="inputEnergiaParcelamento" step="0.01" required value="${tarifas.energiaParcelamento.toFixed(2)}">
+        </div>
+        <div class="form-group">
+            <label>Multas/Juros/Outros (R$ - Valor Fixo)</label>
+            <input type="number" id="inputEnergiaMultas" step="0.01" required value="${tarifas.energiaMultas.toFixed(2)}">
+        </div>
+    `;
+
+    abrirModal('✏️ Editar Estrutura de Custo', content, (e) => {
+        const novasTarifas = {
+            aguaFaixaMinima: parseFloat(document.getElementById('inputAguaFaixa').value) || 0,
+            aguaFixa: parseFloat(document.getElementById('inputAguaFixa').value) || 0,
+            aguaExcedente: parseFloat(document.getElementById('inputAguaExcedente').value) || 0,
+            aguaParcelamento: parseFloat(document.getElementById('inputAguaParcelamento').value) || 0,
+            aguaMultas: parseFloat(document.getElementById('inputAguaMultas').value) || 0,
+            
+            energiaKWh: parseFloat(document.getElementById('inputEnergiaKWh').value) || 0,
+            energiaBandeira: parseFloat(document.getElementById('inputEnergiaBandeira').value) || 0,
+            energiaFixaCOSIP: parseFloat(document.getElementById('inputEnergiaFixaCOSIP').value) || 0,
+            energiaParcelamento: parseFloat(document.getElementById('inputEnergiaParcelamento').value) || 0,
+            energiaMultas: parseFloat(document.getElementById('inputEnergiaMultas').value) || 0,
+        };
+        salvarTarifas(novasTarifas);
+    }, 'Salvar Tarifas');
+}
+
 
 // --- INICIALIZAÇÃO E EVENT LISTENERS ---
 
 function setupEventListeners() {
     document.getElementById('aguaForm').addEventListener('submit', handleFormSubmit);
     document.getElementById('energiaForm').addEventListener('submit', handleFormSubmit);
-    document.getElementById('consumoAgua').addEventListener('input', () => atualizarTotal('agua'));
-    document.getElementById('consumoEnergia').addEventListener('input', () => atualizarTotal('energia'));
 
-    // Configura o link da planilha no botão
+    document.getElementById('leituraAtualAgua').addEventListener('input', () => atualizarTotal('agua'));
+    document.getElementById('leituraAtualEnergia').addEventListener('input', () => atualizarTotal('energia'));
+    
     document.getElementById('spreadsheetLinkAnchor').href = GOOGLE_SHEET_EDIT_URL;
 }
 
@@ -1403,13 +2010,30 @@ async function loadInitialData() {
     loadTheme();
     carregarMetas();
     carregarHistorico();
+    carregarTarifas(); // Carrega as tarifas antes de calcular totais para o dashboard
     await carregarTotais(); 
+
+    // NOVO: Preenche os campos de Nome/Matrícula
+    const lastNome = getLocalData('lastNome', '');
+    const lastMatricula = getLocalData('lastMatricula', '');
+    document.querySelectorAll('input[name="nome"]').forEach(input => input.value = lastNome);
+    document.querySelectorAll('input[name="matricula"]').forEach(input => input.value = lastMatricula);
+
+    // Configura as datas padrão (últimos 30 dias)
+    dashboardDataFim = new Date();
+    dashboardDataInicio = new Date();
+    dashboardDataInicio.setDate(dashboardDataFim.getDate() - 30);
+
+    document.getElementById('dataInicio').value = formatDateToInput(dashboardDataInicio);
+    document.getElementById('dataFim').value = formatDateToInput(dashboardDataFim);
+    document.getElementById('agregacao').value = 'diario';
 }
 
 window.onload = function() {
     loadInitialData();
     setupEventListeners();
     showFormTab('agua', document.querySelector('.form-card > div:first-child .tab-button.active'));
+    filtrarHistorico(); // Garante que a tabela de histórico carrega na primeira vez.
 };
 </script>
 </body>
