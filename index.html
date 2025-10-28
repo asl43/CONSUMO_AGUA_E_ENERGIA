@@ -35,16 +35,12 @@
     overflow-x: hidden;
     transition: all 0.3s;
     color: var(--text-light);
-    overflow-y: auto; /* Permite rolagem no body */
+    overflow-y: auto;
   }
   body.dark-mode {
     background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
     color: var(--text-dark);
   }
-  body.dark-mode::before {
-    background: url('image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
-  }
-  /* CORREÇÃO NO CSS: Remove display: none; do .container padrão */
   .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -52,13 +48,11 @@
     z-index: 1;
     opacity: 0;
     transition: opacity 0.5s;
-    /* display: none; REMOVIDO DAQUI */
   }
   .container.active {
     opacity: 1;
     display: block;
   }
-  /* --- AJUSTE MODERNO DO HEADER --- */
   .header {
     display: flex;
     justify-content: space-between;
@@ -92,10 +86,9 @@
     background: rgba(255, 255, 255, 0.3);
     transform: scale(1.05);
   }
-  /* --- MENU PRINCIPAL DE CARDS (AJUSTADO PARA PERMITIR ROLAGEM) --- */
   #mainMenu {
     width: 100%;
-    height: 100dvh; /* dynamic viewport height */
+    height: 100dvh;
     padding: 50px 20px;
     display: flex;
     flex-direction: column;
@@ -104,8 +97,8 @@
     z-index: 100;
     background: inherit;
     transition: opacity 0.5s;
-    overflow-y: auto; /* permite rolagem interna se necessário */
-    position: relative; /* removido fixed */
+    overflow-y: auto;
+    position: relative;
   }
   #mainMenu h1 {
     margin-bottom: 40px;
@@ -157,6 +150,7 @@
   .menu-card[data-tab="metas"] .material-icons { color: #ef4444; }
   .menu-card[data-tab="comparacao"] .material-icons { color: #764ba2; }
   .menu-card[data-tab="custo"] .material-icons { color: #f97316; }
+
   /* --- RESTANTE DO CSS (sem alterações) --- */
   .main-tabs {
     display: flex;
@@ -733,7 +727,8 @@
     </div>
   </div>
 </div>
-<div class="container" id="mainContainer" style="display: none;">
+<!-- REMOVIDO style="display: none;" -->
+<div class="container" id="mainContainer">
   <div class="header">
     <h1 id="appTitle">💧⚡ Registro de Consumo</h1>
     <div style="display: flex; gap: 10px;">
@@ -763,6 +758,7 @@
       <span>💰 CUSTOS E TARIFAS</span>
     </button>
   </div>
+  <!-- Restante do conteúdo das abas permanece igual -->
   <div id="registro" class="main-content">
     <div class="spreadsheet-link">
         <p>Acesse a planilha de dados:</p>
@@ -1292,37 +1288,24 @@ function fecharModal() {
     document.getElementById('genericModal').classList.remove('active');
     document.getElementById('modalForm').removeEventListener('submit', document.getElementById('modalForm')._currentSubmitHandler);
 }
-
-// CORREÇÃO JS 1: Garante que o contêiner principal seja exibido corretamente
+// FUNÇÃO CORRIGIDA PARA ABRIR ABAS
 function showMainTab(tabId) {
   const mainMenu = document.getElementById('mainMenu');
   const mainContainer = document.getElementById('mainContainer');
-
-  // 1. Inicia o fade out do menu
   mainMenu.style.opacity = '0';
-
-  // 2. Após a transição (300ms), esconde o menu e mostra o container principal
   setTimeout(() => {
     mainMenu.style.display = 'none';
-    
-    // **CORREÇÃO PRINCIPAL:** Garante que o contêiner esteja visível (display: block)
-    mainContainer.style.display = 'block'; 
-    mainContainer.classList.add('active'); // Isso fará a opacidade ir para 1
-    
-    // 3. Gerencia a visibilidade das abas
+    mainContainer.style.display = 'block'; // Garante que o container seja exibido
+    mainContainer.classList.add('active');
     document.querySelectorAll('.main-content').forEach(div => div.classList.remove('active'));
     document.querySelectorAll('.main-tabs .tab-button').forEach(btn => btn.classList.remove('active'));
-    
     const targetTab = document.getElementById(tabId);
     if (targetTab) {
         targetTab.classList.add('active');
     }
-
     const clickedButton = Array.from(document.querySelectorAll('.main-tabs .tab-button'))
                             .find(btn => btn.getAttribute('onclick').includes(`'${tabId}'`));
     if(clickedButton) clickedButton.classList.add('active');
-
-    // 4. Carregamento de dados (originalmente na função)
     try {
       if (tabId === 'dashboard') {
         carregarHistorico(); 
@@ -1342,27 +1325,23 @@ function showMainTab(tabId) {
         document.getElementById('selectTarifaMesAno').value = mesAnoAtual;
         atualizarDisplayTarifas(mesAnoAtual);
       } else if (tabId === 'registro') {
-         // Garante que a primeira aba do registro seja mostrada
          showFormTab('agua', document.querySelector('#formAgua').previousElementSibling.querySelector('.tab-button:first-child'));
       }
     } catch (err) {
       console.error("Erro ao carregar a aba:", err);
       mostrarNotificacao("Erro ao carregar a aba. Verifique o console.", "error");
     }
-
   }, 300);
 }
-
-// CORREÇÃO JS 2: Garante que o contêiner principal seja ocultado ao retornar ao menu
+// FUNÇÃO PARA RETORNAR AO MENU
 function showMenu() {
     document.getElementById('mainContainer').classList.remove('active');
-    document.getElementById('mainContainer').style.display = 'none'; // **CORREÇÃO:** Esconde o container principal
+    document.getElementById('mainContainer').style.display = 'none';
     document.getElementById('mainMenu').style.display = 'flex';
     document.getElementById('mainMenu').style.opacity = '1';
     document.querySelectorAll('.main-content').forEach(div => div.classList.remove('active'));
     document.querySelectorAll('.main-tabs .tab-button').forEach(btn => btn.classList.remove('active'));
 }
-
 function showFormTab(tipo, button) {
   document.querySelectorAll('.form-content').forEach(div => div.style.display = 'none');
   const tipoCaps = tipo.charAt(0).toUpperCase() + tipo.slice(1);
@@ -1776,7 +1755,7 @@ function criarGraficos(dataInicio, dataFim) {
 function carregarHistorico() {
   historico = getLocalData(DATA_KEYS.HISTORICO, []).map(h => ({
       ...h,
-      data: h.dataHoraStr || new Date().toISOString(), // Garante que 'data' exista para compatibilidade
+      data: h.dataHoraStr || new Date().toISOString(),
       tipo: h.tipo.toLowerCase() === 'água' ? 'agua' : h.tipo.toLowerCase() 
   })); 
   historico.sort((a, b) => new Date(b.data) - new Date(a.data));
@@ -2188,26 +2167,21 @@ function atualizarComparacao() {
     }
     document.getElementById('analiseTexto').textContent = analise.trim();
 }
-
 function aplicarFiltroDashboard() {
     const dataInicioStr = document.getElementById('dataInicio').value;
     const dataFimStr = document.getElementById('dataFim').value;
     const dataInicio = new Date(dataInicioStr);
     const dataFim = new Date(dataFimStr);
-
     if (isNaN(dataInicio) || isNaN(dataFim)) {
         mostrarNotificacao('Por favor, defina um período válido (Data Início e Data Fim).', 'error');
         return;
     }
-
     if (dataInicio > dataFim) {
         mostrarNotificacao('A Data Início não pode ser maior que a Data Fim.', 'error');
         return;
     }
-    
     criarGraficos(dataInicio, dataFim);
 }
-
 function carregarTarifas() {
     tarifasMensais = getLocalData(DATA_KEYS.TARIFAS, {});
     const mesAtual = formatMonthToInput(new Date());
@@ -2353,3 +2327,4 @@ window.onload = function() {
 </script>
 </body>
 </html>
+
