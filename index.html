@@ -727,7 +727,6 @@
     </div>
   </div>
 </div>
-<!-- REMOVIDO style="display: none;" -->
 <div class="container" id="mainContainer">
   <div class="header">
     <h1 id="appTitle">💧⚡ Registro de Consumo</h1>
@@ -758,7 +757,6 @@
       <span>💰 CUSTOS E TARIFAS</span>
     </button>
   </div>
-  <!-- Restante do conteúdo das abas permanece igual -->
   <div id="registro" class="main-content">
     <div class="spreadsheet-link">
         <p>Acesse a planilha de dados:</p>
@@ -958,7 +956,7 @@
   <div id="historico" class="main-content">
     <div class="form-card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-        <h2>📋 HISTÓRICO DE REGISTROS (Dados Locais)</h2>
+        <h2>📋 HISTÓRICO DE REGISTROS (Sincronizado Google Sheets)</h2>
       </div>
       <div class="filter-section" style="margin-top: 5px;">
           <h3>🔎 Filtro de Visualização</h3>
@@ -1031,19 +1029,22 @@
       </div>
       <div style="margin-top: 10px;">
         <button class="btn btn-danger" onclick="limparTodosRegistros()" style="width: 100%;">
-            🗑️ Limpar Todos os Registros Locais
+            🗑️ Limpar Todos os Registros Locais (Não afeta a Planilha)
         </button>
       </div>
       <div class="filter-section" style="margin-top: 20px;">
         <h3>💾 Backup & Restauração Local</h3>
         <p style="font-size: 0.9em; margin-bottom: 10px;">Salve ou restaure o histórico local (JSON) para evitar perda de dados no navegador.</p>
         <div class="export-buttons">
-            <button class="btn btn-secondary" onclick="exportarJSON()">📥 Backup JSON</button>
+            <button class="btn btn-secondary" onclick="exportarJSON()">📥 Backup JSON Local</button>
             <input type="file" id="importJsonFile" accept=".json" style="display: none;" onchange="importarJSON(event)">
-            <button class="btn btn-secondary" onclick="document.getElementById('importJsonFile').click()">📤 Restaurar JSON</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('importJsonFile').click()">📤 Restaurar JSON Local</button>
         </div>
       </div>
       <div style="overflow-x: auto;">
+        <span id="loadingHistorico" style="display: none; text-align: center; display: block; padding: 10px; font-weight: 600;">
+          <span class="material-icons loading">sync</span> Carregando histórico da Planilha...
+        </span>
         <table class="history-table">
           <thead>
             <tr>
@@ -1172,12 +1173,14 @@
 </div>
 <script>
 // CONFIGURAÇÕES GLOBAIS
-const GOOGLE_SHEET_EDIT_URL = "https://docs.google.com/spreadsheets/d/SUA_ID_DA_PLANILHA/edit"; 
-const scriptURL = "https://script.google.com/macros/s/AKfycbx8eOuSRi1ntl89KjjBP-eW6DPhW4OSqrhJitxsw5X-WACXa9UkFsN-_WUupiwirNAB/exec";
+// 🚨 VARIÁVEIS ATUALIZADAS COM AS SUAS INFORMAÇÕES
+const GOOGLE_SHEET_EDIT_URL = "https://docs.google.com/spreadsheets/d/1iH2JsOjzt3994AAv43hdOdvGG9bp4fSn_MR9vHJP4bU/edit"; 
+const scriptURL = "https://script.google.com/macros/s/AKfycbx2HRrvycVpY6Br3CfAC-HQ-LiGfkLuCl7st0jSp_z1xXe1dDHIOZBxUcn7mPxKEF1K/exec";
+// 🚨 FIM DAS VARIÁVEIS DE ATUALIZAÇÃO
 const DATA_KEYS = {
     TOTAL_AGUA: 'totalAnteriorAgua',
     TOTAL_ENERGIA: 'totalAnteriorEnergia',
-    HISTORICO: 'historico',
+    HISTORICO: 'historico', // Historico local (backup)
     METAS_AGUA: 'metaAgua',
     METAS_ENERGIA: 'metaEnergia',
     THEME: 'theme',
@@ -1185,7 +1188,8 @@ const DATA_KEYS = {
 };
 let totalAnteriorAgua = 0;
 let totalAnteriorEnergia = 0;
-let historico = [];
+let historico = []; // Histórico que será exibido (sincronizado)
+let historicoLocal = []; // Histórico mantido no localStorage para backup/uso offline
 let metas = { agua: 10, energia: 150 };
 let tarifasMensais = {}; 
 const DEFAULT_TARIFFS = {
@@ -1289,11 +1293,11 @@ function fecharModal() {
     document.getElementById('modalForm').removeEventListener('submit', document.getElementById('modalForm')._currentSubmitHandler);
 }
 // FUNÇÃO CORRIGIDA PARA ABRIR ABAS
-function showMainTab(tabId) {
+async function showMainTab(tabId) {
   const mainMenu = document.getElementById('mainMenu');
   const mainContainer = document.getElementById('mainContainer');
   mainMenu.style.opacity = '0';
-  setTimeout(() => {
+  setTimeout(async () => {
     mainMenu.style.display = 'none';
     mainContainer.style.display = 'block'; // Garante que o container seja exibido
     mainContainer.classList.add('active');
@@ -1307,17 +1311,17 @@ function showMainTab(tabId) {
                             .find(btn => btn.getAttribute('onclick').includes(`'${tabId}'`));
     if(clickedButton) clickedButton.classList.add('active');
     try {
+      if (tabId === 'dashboard' || tabId === 'historico' || tabId === 'metas' || tabId === 'comparacao') {
+          await carregarHistorico(); 
+      }
       if (tabId === 'dashboard') {
-        carregarHistorico(); 
         aplicarFiltroDashboard(); 
       } else if (tabId === 'historico') {
-        carregarHistorico();
         aplicarFiltrosHistorico(); 
       } else if (tabId === 'metas') {
         carregarMetas(); 
         atualizarProgressoMetas();
       } else if (tabId === 'comparacao') {
-        carregarHistorico();
         atualizarComparacao();
       } else if (tabId === 'custo') { 
         carregarTarifas();
@@ -1354,9 +1358,37 @@ function showFormTab(tipo, button) {
         if(inputLeitura) inputLeitura.focus();
     }, 100); 
 }
+// FUNÇÃO ADICIONADA: BUSCA TODOS OS REGISTROS NA PLANILHA
+async function fetchHistoricoFromSheets() {
+    try {
+        const res = await fetch(`${scriptURL}?action=getAll`);
+        const result = await res.json();
+        if (result.status === 'success' && Array.isArray(result.data)) {
+            const fetchedData = result.data.map(h => ({
+                ...h,
+                data: (new Date(h.dataHoraStr)).toISOString(), // Normaliza a data
+                tipo: h.tipo.toLowerCase() === 'água' ? 'agua' : h.tipo.toLowerCase(), 
+                consumo: parseFloat(h.consumo) || 0,
+                total: parseFloat(h.total) || 0,
+            }));
+            fetchedData.sort((a, b) => new Date(b.data) - new Date(a.data));
+            return fetchedData;
+        } else {
+            console.error("Erro ao buscar histórico da planilha:", result.message || "Estrutura de dados inválida.");
+            mostrarNotificacao("Falha ao carregar histórico da Planilha. Usando dados locais.", "error");
+            return [];
+        }
+    } catch (err) {
+        console.warn("Erro de conexão ao buscar histórico da Planilha. Usando dados locais.", err);
+        mostrarNotificacao("Erro de conexão (Planilha Google). Usando dados locais.", "warning");
+        return [];
+    }
+}
 async function carregarTotais() {
+    // 1. Carrega totais do localStorage como fallback
     totalAnteriorAgua = getLocalData(DATA_KEYS.TOTAL_AGUA, 0);
     totalAnteriorEnergia = getLocalData(DATA_KEYS.TOTAL_ENERGIA, 0);
+    // 2. Tenta buscar os últimos totais da Planilha (mais confiável)
     try {
         const res = await fetch(`${scriptURL}?action=getLast`);
         const data = await res.json();
@@ -1493,13 +1525,17 @@ async function handleFormSubmit(e) {
         extra3: formData.get('extra3') || '',
     };
     try {
-        fetch(scriptURL, { method: 'POST', body: formData })
-            .then(() => console.log('Dados enviados ao Sheets com sucesso'))
-            .catch(err => console.error('Erro ao enviar dados ao Sheets (Tentativa assíncrona):', err));
+        // Envio assíncrono para o Sheets
+        const fetchPromise = fetch(scriptURL, { method: 'POST', body: formData });
+        
+        // Atualiza localmente o histórico de backup e os totais para resposta imediata
         setLocalData('lastNome', nome);
         setLocalData('lastMatricula', matricula);
-        historico.unshift(novoRegistro); 
-        setLocalData(DATA_KEYS.HISTORICO, historico);
+        // O histórico local é mantido apenas como backup, a exibição virá do Sheets na próxima carga
+        historicoLocal.unshift(novoRegistro); 
+        setLocalData(DATA_KEYS.HISTORICO, historicoLocal); 
+        
+        // Os totais são atualizados com o valor local, mas serão revalidados pelo Sheets na próxima carregarTotais
         if (tipo === 'agua') {
             totalAnteriorAgua = novoRegistro.total;
             setLocalData(DATA_KEYS.TOTAL_AGUA, totalAnteriorAgua);
@@ -1509,7 +1545,15 @@ async function handleFormSubmit(e) {
         }
         mostrarMensagem(msg, `✅ Registro de ${tipoCaps} salvo localmente e enviado ao Sheets!`, "success");
         form.reset();
-        await carregarTotais();
+        
+        // Espera o envio para o Sheets, mas não bloqueia a UI
+        fetchPromise
+            .then(() => console.log('Dados enviados ao Sheets com sucesso'))
+            .catch(err => console.error('Erro ao enviar dados ao Sheets:', err));
+
+        // Recarrega os dados do Sheets
+        await carregarTotais(); 
+        await carregarHistorico(); 
         aplicarFiltroDashboard(); 
     } catch (err) {
         console.error("Erro ao processar dados localmente:", err);
@@ -1640,7 +1684,6 @@ function calcularCustoPeriodoCorrigido(dataInicio, dataFim) {
     };
 }
 function criarGraficos(dataInicio, dataFim) {
-    carregarHistorico(); 
     carregarTarifas(); 
     const agregacao = document.getElementById('agregacao').value; 
     const dadosFiltrados = filtrarDadosPorData(historico, dataInicio, dataFim);
@@ -1752,20 +1795,37 @@ function criarGraficos(dataInicio, dataFim) {
     const custoPeriodo = calcularCustoPeriodoCorrigido(dataInicio, dataFim);
     document.getElementById('custoTotal').textContent = currencyFormatter.format(custoPeriodo.custoTotal);
 }
-function carregarHistorico() {
-  historico = getLocalData(DATA_KEYS.HISTORICO, []).map(h => ({
+// FUNÇÃO ATUALIZADA: CARREGA DADOS DA PLANILHA E USA LOCAL COMO FALLBACK/BACKUP
+async function carregarHistorico() {
+  document.getElementById('loadingHistorico').style.display = 'block';
+  historicoLocal = getLocalData(DATA_KEYS.HISTORICO, []).map(h => ({
       ...h,
-      data: h.dataHoraStr || new Date().toISOString(),
+      data: h.dataHoraStr || h.data, // Usa dataHoraStr se disponível
       tipo: h.tipo.toLowerCase() === 'água' ? 'agua' : h.tipo.toLowerCase() 
   })); 
+  
+  const historicoSheets = await fetchHistoricoFromSheets();
+  
+  // Mescla: Usa dados do Sheets, e usa o local se o Sheets falhar/estiver vazio
+  if (historicoSheets.length > 0) {
+      historico = historicoSheets;
+  } else {
+      historico = historicoLocal;
+      // Não mostra notificação se for a primeira carga e o Sheets falhar/estiver vazio
+      if (historicoLocal.length > 0) {
+          mostrarNotificacao(`Não foi possível carregar o histórico da Planilha. Exibindo ${historico.length} registros locais.`, 'warning');
+      }
+  }
+
   historico.sort((a, b) => new Date(b.data) - new Date(a.data));
+  document.getElementById('loadingHistorico').style.display = 'none';
 }
 function aplicarFiltrosHistorico() {
-  carregarHistorico(); 
+  document.getElementById('loadingHistorico').style.display = 'block';
   const filtroTipo = document.getElementById('filtroTipo').value;
   const filtroPeriodo = document.getElementById('filtroPeriodo').value;
   const tbody = document.getElementById('historicoBody');
-  let dadosFiltrados = null;
+  let dadosFiltrados = historico;
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
   let dataInicioFiltro = null;
@@ -1807,6 +1867,7 @@ function aplicarFiltrosHistorico() {
   }
   if (!dadosFiltrados || dadosFiltrados.length === 0) {
     tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Nenhum registro encontrado para o filtro selecionado.</td></tr>';
+    document.getElementById('loadingHistorico').style.display = 'none';
     return;
   }
   tbody.innerHTML = dadosFiltrados.map(item => `
@@ -1817,65 +1878,44 @@ function aplicarFiltrosHistorico() {
       <td>${parseFloat(item.consumo).toFixed(2)} ${item.tipo === 'agua' ? 'm³' : 'kWh'}</td>
       <td>${parseFloat(item.total).toFixed(2)} ${item.tipo === 'agua' ? 'm³' : 'kWh'}</td>
       <td class="action-buttons">
-          <button class="btn-icon btn-edit" title="Editar" onclick="abrirModalEdicao('${item.id}')" disabled>
+          <button class="btn-icon btn-edit" title="Editar - Indisponível (Edite na Planilha)" disabled>
             <span class="material-icons" style="font-size: 18px;">edit</span>
           </button>
-          <button class="btn-icon btn-delete" title="Excluir" onclick="excluirRegistro('${item.id}')">
+          <button class="btn-icon btn-delete" title="Excluir - Indisponível (Exclua na Planilha)" disabled>
             <span class="material-icons" style="font-size: 18px;">delete</span>
           </button>
       </td>
     </tr>
   `).join('');
+    document.getElementById('loadingHistorico').style.display = 'none';
 }
 function abrirModalEdicao(id) {
-    mostrarNotificacao('A edição de registros locais foi desabilitada para garantir a integridade do total acumulado. Edite apenas no Google Sheets.', 'error');
+    mostrarNotificacao('A edição de registros deve ser feita diretamente no Google Sheets para manter a sincronização e integridade dos totais.', 'error');
 }
 function excluirRegistro(id) {
-    const registroIndex = historico.findIndex(item => item.id === id);
-    const registro = historico[registroIndex];
-    if (!registro) return;
-    const isLast = registroIndex === 0;
-    if (isLast) {
-      if (!confirm("Tem certeza que deseja excluir o ÚLTIMO registro localmente? Isso é seguro, mas você precisará excluir o registro correspondente no Google Sheets.")) return;
-    } else {
-      if (!confirm(`⚠️ ATENÇÃO: Você está tentando excluir um registro antigo! Isso causará INCONSISTÊNCIA nos campos 'Total' dos registros posteriores e no 'Total Acumulado' atual. Você precisará redefinir o 'Total Inicial' manualmente. Deseja prosseguir com a exclusão local?`)) return;
-    }
-    historico = historico.filter(item => item.id !== id);
-    setLocalData(DATA_KEYS.HISTORICO, historico);
-    if (registro.tipo === 'agua') {
-        const penultimoAgua = historico.filter(h => h.tipo === 'agua')[0];
-        totalAnteriorAgua = penultimoAgua ? penultimoAgua.total : 0;
-        setLocalData(DATA_KEYS.TOTAL_AGUA, totalAnteriorAgua);
-    } else {
-        const penultimoEnergia = historico.filter(h => h.tipo === 'energia')[0];
-        totalAnteriorEnergia = penultimoEnergia ? penultimoEnergia.total : 0;
-        setLocalData(DATA_KEYS.TOTAL_ENERGIA, totalAnteriorEnergia);
-    }
-    carregarTotais(); 
-    aplicarFiltrosHistorico();
-    aplicarFiltroDashboard();
-    mostrarNotificacao('Registro excluído localmente. O Total Acumulado foi recalculado com base no registro anterior.', 'warning');
+    mostrarNotificacao('A exclusão de registros deve ser feita diretamente no Google Sheets para manter a sincronização e integridade dos totais.', 'error');
 }
 function limparTodosRegistros() {
-    if (!confirm("⚠️ CONFIRMAÇÃO FINAL: Tem certeza que deseja APAGAR TODOS os registros (Água e Energia) do histórico local e ZERAR os Totais Acumulados? Esta ação é irreversível localmente.")) return;
-    historico = [];
-    setLocalData(DATA_KEYS.HISTORICO, historico);
+    if (!confirm("⚠️ CONFIRMAÇÃO FINAL: Tem certeza que deseja APAGAR TODOS os registros (Água e Energia) do histórico local (backup) e ZERAR os Totais Acumulados Locais? Esta ação é irreversível localmente, mas NÃO AFETA a Planilha Google.")) return;
+    historicoLocal = [];
+    setLocalData(DATA_KEYS.HISTORICO, historicoLocal);
     totalAnteriorAgua = 0;
     totalAnteriorEnergia = 0;
     setLocalData(DATA_KEYS.TOTAL_AGUA, 0);
     setLocalData(DATA_KEYS.TOTAL_ENERGIA, 0);
     carregarTotais(); 
+    carregarHistorico(); // Recarrega do Sheets para o display
     aplicarFiltrosHistorico();
     aplicarFiltroDashboard();
     setLocalData('lastNome', '');
     setLocalData('lastMatricula', '');
     document.querySelectorAll('input[name="nome"]').forEach(input => input.value = '');
     document.querySelectorAll('input[name="matricula"]').forEach(input => input.value = '');
-    mostrarNotificacao('✅ Todos os registros locais foram apagados. Totais acumulados zerados.', 'success');
+    mostrarNotificacao('✅ Histórico local (backup) e Totais acumulados locais foram zerados. O histórico do Sheets não foi afetado.', 'success');
 }
 function exportarJSON() {
     const data = {
-        historico: getLocalData(DATA_KEYS.HISTORICO, []),
+        historico: getLocalData(DATA_KEYS.HISTORICO, []), // Exporta o backup local
         tarifas: getLocalData(DATA_KEYS.TARIFAS, {}),
         totais: {
             agua: totalAnteriorAgua,
@@ -1886,11 +1926,11 @@ function exportarJSON() {
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `backup_consumo_${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `backup_consumo_local_${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    mostrarNotificacao('Backup JSON exportado com sucesso!', 'success');
+    mostrarNotificacao('Backup JSON Local exportado com sucesso!', 'success');
 }
 function importarJSON(event) {
     const file = event.target.files[0];
@@ -1906,7 +1946,7 @@ function importarJSON(event) {
                      return;
                 }
                 setLocalData(DATA_KEYS.HISTORICO, cleanedData);
-                historico = cleanedData;
+                historicoLocal = cleanedData;
             }
             if (imported.tarifas && typeof imported.tarifas === 'object') {
                 setLocalData(DATA_KEYS.TARIFAS, imported.tarifas);
@@ -1919,9 +1959,10 @@ function importarJSON(event) {
                 setLocalData(DATA_KEYS.TOTAL_ENERGIA, totalAnteriorEnergia);
             }
             carregarTotais(); 
+            carregarHistorico(); // Recarrega (o display usará o sheets, mas o backup local foi restaurado)
             aplicarFiltrosHistorico();
             aplicarFiltroDashboard();
-            mostrarNotificacao(`Dados de ${historico.length} registros e tarifas restaurados com sucesso!`, 'success');
+            mostrarNotificacao(`Dados de ${historicoLocal.length} registros e tarifas RESTAURADOS no backup local! O display continuará mostrando o Sheets.`, 'success');
         } catch (error) {
             console.error(error);
             mostrarNotificacao(`Erro ao processar arquivo JSON: ${error.message}`, 'error');
@@ -1967,7 +2008,7 @@ function exportarCSV() {
     const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `historico_consumo_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `historico_consumo_exportado_${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -2023,11 +2064,10 @@ function exportarPDF() {
         styles: { fontSize: 8, cellPadding: 2 },
         headStyles: { fillColor: [102, 126, 234] }
     });
-    doc.save(`historico_consumo_${new Date().toISOString().split('T')[0]}.pdf`);
+    doc.save(`historico_consumo_exportado_${new Date().toISOString().split('T')[0]}.pdf`);
     mostrarNotificacao(`Arquivo PDF de ${dadosFinais.length} registros exportado com sucesso!`, 'success');
 }
 function calcularCustoPorPeriodo() {
-    carregarHistorico();
     carregarTarifas(); 
     const dataInicioStr = document.getElementById('filtroCustoDataInicio').value;
     const dataFimStr = document.getElementById('filtroCustoDataFim').value;
@@ -2295,9 +2335,11 @@ function setupEventListeners() {
 async function loadInitialData() {
     loadTheme();
     carregarMetas();
-    carregarHistorico();
+    historicoLocal = getLocalData(DATA_KEYS.HISTORICO, []); // Carrega backup local
     carregarTarifas(); 
-    await carregarTotais(); 
+    await carregarTotais(); // Carrega totais (preferencialmente do Sheets)
+    await carregarHistorico(); // Carrega o histórico (preferencialmente do Sheets)
+    
     const lastNome = getLocalData('lastNome', '');
     const lastMatricula = getLocalData('lastMatricula', '');
     document.querySelectorAll('input[name="nome"]').forEach(input => input.value = lastNome);
@@ -2327,4 +2369,3 @@ window.onload = function() {
 </script>
 </body>
 </html>
-
