@@ -44,6 +44,7 @@
   body.dark-mode::before {
     background: url('image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
   }
+  /* CORREÇÃO NO CSS: Remove display: none; do .container padrão */
   .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -51,13 +52,12 @@
     z-index: 1;
     opacity: 0;
     transition: opacity 0.5s;
-    display: none;
+    /* display: none; REMOVIDO DAQUI */
   }
   .container.active {
     opacity: 1;
     display: block;
   }
-
   /* --- AJUSTE MODERNO DO HEADER --- */
   .header {
     display: flex;
@@ -92,7 +92,6 @@
     background: rgba(255, 255, 255, 0.3);
     transform: scale(1.05);
   }
-
   /* --- MENU PRINCIPAL DE CARDS (AJUSTADO PARA PERMITIR ROLAGEM) --- */
   #mainMenu {
     width: 100%;
@@ -158,7 +157,6 @@
   .menu-card[data-tab="metas"] .material-icons { color: #ef4444; }
   .menu-card[data-tab="comparacao"] .material-icons { color: #764ba2; }
   .menu-card[data-tab="custo"] .material-icons { color: #f97316; }
-
   /* --- RESTANTE DO CSS (sem alterações) --- */
   .main-tabs {
     display: flex;
@@ -240,10 +238,6 @@
     border-radius: 16px;
     text-align: center;
     box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-  }
-  .stat-card.info {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    color: white;
   }
   .stat-card .label {
     font-size: 14px;
@@ -739,7 +733,7 @@
     </div>
   </div>
 </div>
-<div class="container" id="mainContainer">
+<div class="container" id="mainContainer" style="display: none;">
   <div class="header">
     <h1 id="appTitle">💧⚡ Registro de Consumo</h1>
     <div style="display: flex; gap: 10px;">
@@ -921,14 +915,6 @@
       <div class="stat-card">
         <div class="label">Consumo Energia (Período)</div>
         <div class="value" id="energiaMes">0.00 kWh</div>
-      </div>
-      <div class="stat-card info">
-        <div class="label">📅 Média Diária Água</div>
-        <div class="value" id="mediaDiariaAgua">0.00 m³/dia</div>
-      </div>
-      <div class="stat-card info">
-        <div class="label">📅 Média Diária Energia</div>
-        <div class="value" id="mediaDiariaEnergia">0.00 kWh/dia</div>
       </div>
       <div class="stat-card success" id="cardEconomiaAgua">
         <div class="label">Meta Água (Economia)</div>
@@ -1226,7 +1212,6 @@ const currencyFormatter = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
 });
-
 function getLocalData(key, defaultValue = null) {
     const data = localStorage.getItem(key);
     try {
@@ -1273,7 +1258,6 @@ const getLastDayOfMonth = (monthYear) => {
     lastDay.setHours(23, 59, 59, 999);
     return lastDay;
 };
-
 function loadTheme() {
     const theme = getLocalData(DATA_KEYS.THEME);
     if (theme === 'dark') {
@@ -1308,46 +1292,77 @@ function fecharModal() {
     document.getElementById('genericModal').classList.remove('active');
     document.getElementById('modalForm').removeEventListener('submit', document.getElementById('modalForm')._currentSubmitHandler);
 }
+
+// CORREÇÃO JS 1: Garante que o contêiner principal seja exibido corretamente
+function showMainTab(tabId) {
+  const mainMenu = document.getElementById('mainMenu');
+  const mainContainer = document.getElementById('mainContainer');
+
+  // 1. Inicia o fade out do menu
+  mainMenu.style.opacity = '0';
+
+  // 2. Após a transição (300ms), esconde o menu e mostra o container principal
+  setTimeout(() => {
+    mainMenu.style.display = 'none';
+    
+    // **CORREÇÃO PRINCIPAL:** Garante que o contêiner esteja visível (display: block)
+    mainContainer.style.display = 'block'; 
+    mainContainer.classList.add('active'); // Isso fará a opacidade ir para 1
+    
+    // 3. Gerencia a visibilidade das abas
+    document.querySelectorAll('.main-content').forEach(div => div.classList.remove('active'));
+    document.querySelectorAll('.main-tabs .tab-button').forEach(btn => btn.classList.remove('active'));
+    
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) {
+        targetTab.classList.add('active');
+    }
+
+    const clickedButton = Array.from(document.querySelectorAll('.main-tabs .tab-button'))
+                            .find(btn => btn.getAttribute('onclick').includes(`'${tabId}'`));
+    if(clickedButton) clickedButton.classList.add('active');
+
+    // 4. Carregamento de dados (originalmente na função)
+    try {
+      if (tabId === 'dashboard') {
+        carregarHistorico(); 
+        aplicarFiltroDashboard(); 
+      } else if (tabId === 'historico') {
+        carregarHistorico();
+        aplicarFiltrosHistorico(); 
+      } else if (tabId === 'metas') {
+        carregarMetas(); 
+        atualizarProgressoMetas();
+      } else if (tabId === 'comparacao') {
+        carregarHistorico();
+        atualizarComparacao();
+      } else if (tabId === 'custo') { 
+        carregarTarifas();
+        const mesAnoAtual = formatMonthToInput(new Date());
+        document.getElementById('selectTarifaMesAno').value = mesAnoAtual;
+        atualizarDisplayTarifas(mesAnoAtual);
+      } else if (tabId === 'registro') {
+         // Garante que a primeira aba do registro seja mostrada
+         showFormTab('agua', document.querySelector('#formAgua').previousElementSibling.querySelector('.tab-button:first-child'));
+      }
+    } catch (err) {
+      console.error("Erro ao carregar a aba:", err);
+      mostrarNotificacao("Erro ao carregar a aba. Verifique o console.", "error");
+    }
+
+  }, 300);
+}
+
+// CORREÇÃO JS 2: Garante que o contêiner principal seja ocultado ao retornar ao menu
 function showMenu() {
     document.getElementById('mainContainer').classList.remove('active');
+    document.getElementById('mainContainer').style.display = 'none'; // **CORREÇÃO:** Esconde o container principal
     document.getElementById('mainMenu').style.display = 'flex';
     document.getElementById('mainMenu').style.opacity = '1';
     document.querySelectorAll('.main-content').forEach(div => div.classList.remove('active'));
     document.querySelectorAll('.main-tabs .tab-button').forEach(btn => btn.classList.remove('active'));
 }
-function showMainTab(tabId) {
-  document.getElementById('mainMenu').style.opacity = '0';
-  setTimeout(() => {
-    document.getElementById('mainMenu').style.display = 'none';
-    document.getElementById('mainContainer').classList.add('active');
-  }, 500);
-  document.querySelectorAll('.main-content').forEach(div => div.classList.remove('active'));
-  document.querySelectorAll('.main-tabs .tab-button').forEach(btn => btn.classList.remove('active'));
-  document.getElementById(tabId).classList.add('active');
-  const clickedButton = Array.from(document.querySelectorAll('.main-tabs .tab-button'))
-                            .find(btn => btn.getAttribute('onclick').includes(`'${tabId}'`));
-  if(clickedButton) clickedButton.classList.add('active');
-  if (tabId === 'dashboard') {
-    carregarHistorico(); 
-    aplicarFiltroDashboard(); 
-  } else if (tabId === 'historico') {
-    carregarHistorico();
-    aplicarFiltrosHistorico(); 
-  } else if (tabId === 'metas') {
-    carregarMetas(); 
-    atualizarProgressoMetas();
-  } else if (tabId === 'comparacao') {
-    carregarHistorico();
-    atualizarComparacao();
-  } else if (tabId === 'custo') { 
-    carregarTarifas();
-    const mesAnoAtual = formatMonthToInput(new Date());
-    document.getElementById('selectTarifaMesAno').value = mesAnoAtual;
-    atualizarDisplayTarifas(mesAnoAtual);
-  } else if (tabId === 'registro') {
-     showFormTab('agua', document.querySelector('#formAgua').previousElementSibling.querySelector('.tab-button:first-child'));
-  }
-}
+
 function showFormTab(tipo, button) {
   document.querySelectorAll('.form-content').forEach(div => div.style.display = 'none');
   const tipoCaps = tipo.charAt(0).toUpperCase() + tipo.slice(1);
@@ -1488,7 +1503,7 @@ async function handleFormSubmit(e) {
     }
     const novoRegistro = {
         id: Date.now().toString(36) + Math.random().toString(36).substring(2, 9), 
-        data: dataHoraStr,
+         dataHoraStr,
         tipo: tipo,
         nome: nome,
         consumo: consumo,
@@ -1665,19 +1680,19 @@ function criarGraficos(dataInicio, dataFim) {
     if (chartInstance) chartInstance.destroy();
     chartInstance = new Chart(ctx, {
       type: 'line',
-       {
+       data: {
         labels: formattedLabels,
         datasets: [
           {
             label: 'Água (m³)',
-             aguaData,
+            data: aguaData,
             borderColor: '#667eea',
             backgroundColor: 'rgba(102, 126, 234, 0.1)',
             tension: 0.4,
           },
           {
             label: 'Energia (kWh)',
-             energiaData,
+            data: energiaData,
             borderColor: '#f59e0b',
             backgroundColor: 'rgba(245, 158, 11, 0.1)',
             tension: 0.4,
@@ -1710,10 +1725,10 @@ function criarGraficos(dataInicio, dataFim) {
     const totalEnergiaGeral = historico.filter(h => h.tipo === 'energia').reduce((a, b) => a + b.consumo, 0);
     pieChartInstance = new Chart(ctxPie, {
       type: 'doughnut',
-       {
+       data: {
         labels: ['Água', 'Energia'],
         datasets: [{
-          data: [totalAguaGeral, totalEnergiaGeral],
+           data: [totalAguaGeral, totalEnergiaGeral],
           backgroundColor: ['#667eea', '#f59e0b']
         }]
       },
@@ -1728,23 +1743,12 @@ function criarGraficos(dataInicio, dataFim) {
         }
       }
     });
-    // Atualizar estatísticas (baseadas no período)
     const aguaConsumoPeriodo = Object.values(dadosAgrupados).reduce((sum, item) => sum + item.agua, 0);
     const energiaConsumoPeriodo = Object.values(dadosAgrupados).reduce((sum, item) => sum + item.energia, 0);
-
-    // Cálculo de dias no intervalo (inclusivo)
     const diffTime = Math.abs(dataFim.getTime() - dataInicio.getTime());
-    const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1); // +1 para incluir ambos os extremos
-
-    const mediaDiariaAgua = aguaConsumoPeriodo / diffDays;
-    const mediaDiariaEnergia = energiaConsumoPeriodo / diffDays;
-
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
     document.getElementById('aguaMes').textContent = aguaConsumoPeriodo.toFixed(2) + ' m³';
     document.getElementById('energiaMes').textContent = energiaConsumoPeriodo.toFixed(2) + ' kWh';
-    document.getElementById('mediaDiariaAgua').textContent = mediaDiariaAgua.toFixed(2) + ' m³/dia';
-    document.getElementById('mediaDiariaEnergia').textContent = mediaDiariaEnergia.toFixed(2) + ' kWh/dia';
-
-    // Calcula Meta Proporcional
     const metaAguaMensal = metas.agua || 10;
     const metaAguaPeriodo = (metaAguaMensal / 30) * diffDays; 
     let economiaTexto = '';
@@ -1766,14 +1770,13 @@ function criarGraficos(dataInicio, dataFim) {
         }
     }
     document.getElementById('economiaAgua').textContent = economiaTexto;
-
-    // CÁLCULO DE CUSTO
     const custoPeriodo = calcularCustoPeriodoCorrigido(dataInicio, dataFim);
     document.getElementById('custoTotal').textContent = currencyFormatter.format(custoPeriodo.custoTotal);
 }
 function carregarHistorico() {
   historico = getLocalData(DATA_KEYS.HISTORICO, []).map(h => ({
       ...h,
+      data: h.dataHoraStr || new Date().toISOString(), // Garante que 'data' exista para compatibilidade
       tipo: h.tipo.toLowerCase() === 'água' ? 'agua' : h.tipo.toLowerCase() 
   })); 
   historico.sort((a, b) => new Date(b.data) - new Date(a.data));
@@ -2185,6 +2188,26 @@ function atualizarComparacao() {
     }
     document.getElementById('analiseTexto').textContent = analise.trim();
 }
+
+function aplicarFiltroDashboard() {
+    const dataInicioStr = document.getElementById('dataInicio').value;
+    const dataFimStr = document.getElementById('dataFim').value;
+    const dataInicio = new Date(dataInicioStr);
+    const dataFim = new Date(dataFimStr);
+
+    if (isNaN(dataInicio) || isNaN(dataFim)) {
+        mostrarNotificacao('Por favor, defina um período válido (Data Início e Data Fim).', 'error');
+        return;
+    }
+
+    if (dataInicio > dataFim) {
+        mostrarNotificacao('A Data Início não pode ser maior que a Data Fim.', 'error');
+        return;
+    }
+    
+    criarGraficos(dataInicio, dataFim);
+}
+
 function carregarTarifas() {
     tarifasMensais = getLocalData(DATA_KEYS.TARIFAS, {});
     const mesAtual = formatMonthToInput(new Date());
@@ -2330,4 +2353,3 @@ window.onload = function() {
 </script>
 </body>
 </html>
-
